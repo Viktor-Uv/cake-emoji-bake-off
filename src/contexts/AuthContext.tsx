@@ -9,7 +9,7 @@ import {
   updateProfile,
 } from "firebase/auth";
 import { doc, setDoc, getDoc } from "firebase/firestore";
-import { auth, firestore, googleProvider, appleProvider, testFirebaseConnection } from "@/lib/firebase";
+import { auth, firestore, googleProvider, appleProvider } from "@/lib/firebase";
 import { AuthContextType, User } from "@/types/auth";
 import { toast } from "@/components/ui/sonner";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -25,28 +25,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [connectionChecked, setConnectionChecked] = useState(false);
   const isMobile = useIsMobile();
 
-  // Check Firebase connection on mount
   useEffect(() => {
-    const checkConnection = async () => {
-      try {
-        await testFirebaseConnection();
-        setConnectionChecked(true);
-      } catch (err) {
-        console.error("Firebase connection check failed:", err);
-        toast.error("Could not connect to Firebase. Please check your configuration.");
-        setConnectionChecked(true);
-      }
-    };
-    
-    checkConnection();
-  }, []);
-
-  useEffect(() => {
-    if (!connectionChecked) return;
-    
     // Subscribe to auth state changes
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       setLoading(true);
@@ -74,19 +55,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
               emojiAvatar: "🍰", // Default emoji
               photoURL: firebaseUser.photoURL || undefined
             });
-            
-            // Create a user document if it doesn't exist
-            try {
-              await setDoc(doc(firestore, "users", firebaseUser.uid), {
-                displayName: firebaseUser.displayName || "Cake Baker",
-                email: firebaseUser.email,
-                emojiAvatar: "🍰",
-                photoURL: firebaseUser.photoURL,
-                createdAt: new Date()
-              });
-            } catch (err) {
-              console.error("Error creating user document:", err);
-            }
           }
         } else {
           // User is signed out
@@ -102,7 +70,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     // Cleanup subscription on unmount
     return () => unsubscribe();
-  }, [connectionChecked]);
+  }, []);
 
   // Sign up with email and password
   const signUp = async (email: string, password: string, displayName: string, emoji: string) => {
@@ -128,7 +96,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       toast.success("Account created successfully!");
     } catch (err: any) {
       console.error("Error signing up:", err);
-      setError(formatFirebaseError(err));
+      setError(err.message);
       toast.error("Failed to create account. Please try again.");
     } finally {
       setLoading(false);
@@ -144,7 +112,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       toast.success("Signed in successfully!");
     } catch (err: any) {
       console.error("Error signing in with email:", err);
-      setError(formatFirebaseError(err));
+      setError(err.message);
       toast.error("Failed to sign in. Check your credentials.");
     } finally {
       setLoading(false);
@@ -176,7 +144,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       toast.success("Signed in with Google successfully!");
     } catch (err: any) {
       console.error("Error signing in with Google:", err);
-      setError(formatFirebaseError(err));
+      setError(err.message);
       toast.error("Failed to sign in with Google. Please try again.");
     } finally {
       setLoading(false);
@@ -213,37 +181,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       toast.success("Signed in with Apple successfully!");
     } catch (err: any) {
       console.error("Error signing in with Apple:", err);
-      setError(formatFirebaseError(err));
+      setError(err.message);
       toast.error("Failed to sign in with Apple. Please try again.");
     } finally {
       setLoading(false);
-    }
-  };
-
-  // Format Firebase error messages to be more user-friendly
-  const formatFirebaseError = (error: any): string => {
-    const errorCode = error.code || '';
-    
-    // Handle common Firebase auth errors
-    switch (errorCode) {
-      case 'auth/email-already-in-use':
-        return 'This email is already in use. Please try logging in or use another email.';
-      case 'auth/invalid-email':
-        return 'Invalid email format. Please check your email address.';
-      case 'auth/user-not-found':
-        return 'No account found with this email. Please register first.';
-      case 'auth/wrong-password':
-        return 'Incorrect password. Please try again.';
-      case 'auth/weak-password':
-        return 'Password is too weak. Use at least 6 characters.';
-      case 'auth/operation-not-allowed':
-        return 'This sign-in method is not enabled. Please contact support.';
-      case 'auth/popup-closed-by-user':
-        return 'Sign-in popup was closed. Please try again.';
-      case 'auth/api-key-not-valid.-please-pass-a-valid-api-key.':
-        return 'Invalid Firebase API key. Please check your Firebase configuration.';
-      default:
-        return error.message || 'An unknown error occurred. Please try again.';
     }
   };
 
