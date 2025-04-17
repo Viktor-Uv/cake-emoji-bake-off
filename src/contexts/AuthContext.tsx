@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import {
   createUserWithEmailAndPassword,
@@ -13,6 +14,7 @@ import { AuthContextType, User } from "@/types/auth";
 import { toast } from "@/components/ui/sonner";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { EMOJI_OPTIONS } from "@/constants/emoji-constants";
+import { useNavigate } from "react-router-dom";
 
 // Create the auth context
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -23,6 +25,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const isMobile = useIsMobile();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
@@ -41,14 +44,25 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
               photoURL: firebaseUser.photoURL || undefined
             });
           } else {
+            // Create user document if it doesn't exist
+            const randomEmoji = EMOJI_OPTIONS[Math.floor(Math.random() * EMOJI_OPTIONS.length)];
+            await setDoc(doc(firestore, "users", firebaseUser.uid), {
+              displayName: firebaseUser.displayName || "Cake Baker",
+              email: firebaseUser.email,
+              emojiAvatar: randomEmoji,
+              createdAt: new Date()
+            });
+            
             setUser({
               id: firebaseUser.uid,
               email: firebaseUser.email!,
-              displayName: firebaseUser.displayName,
-              emojiAvatar: "🍰",
+              displayName: firebaseUser.displayName || "Cake Baker",
+              emojiAvatar: randomEmoji,
               photoURL: firebaseUser.photoURL || undefined
             });
           }
+          // Navigate to profile page after successful authentication
+          navigate('/profile');
         } else {
           setUser(null);
         }
@@ -61,7 +75,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [navigate]);
 
   const signUp = async (email: string, password: string, displayName: string, emoji: string) => {
     try {
@@ -82,6 +96,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       });
       
       toast.success("Account created successfully!");
+      navigate('/profile');
     } catch (err: any) {
       console.error("Error signing up:", err);
       setError(err.message);
@@ -97,6 +112,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       setError(null);
       await signInWithEmailAndPassword(auth, email, password);
       toast.success("Signed in successfully!");
+      navigate('/profile');
     } catch (err: any) {
       console.error("Error signing in with email:", err);
       setError(err.message);
@@ -127,6 +143,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       }
       
       toast.success("Signed in with Google successfully!");
+      navigate('/profile');
     } catch (err: any) {
       console.error("Error signing in with Google:", err);
       setError(err.message);
@@ -162,6 +179,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       }
       
       toast.success("Signed in with Apple successfully!");
+      navigate('/profile');
     } catch (err: any) {
       console.error("Error signing in with Apple:", err);
       setError(err.message);
@@ -175,6 +193,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     try {
       await firebaseSignOut(auth);
       toast.info("Signed out successfully.");
+      navigate('/login');
     } catch (err: any) {
       console.error("Error signing out:", err);
       toast.error("Failed to sign out. Please try again.");
