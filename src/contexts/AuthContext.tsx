@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import {
   createUserWithEmailAndPassword,
@@ -13,9 +12,7 @@ import { auth, firestore, googleProvider, appleProvider } from "@/lib/firebase";
 import { AuthContextType, User } from "@/types/auth";
 import { toast } from "@/components/ui/sonner";
 import { useIsMobile } from "@/hooks/use-mobile";
-
-// Default emoji options for avatars
-export const EMOJI_OPTIONS = ["🍰", "🧁", "🎂", "🥮", "🍮", "🍭", "🍬", "🍫", "🍪", "🍩"];
+import { EMOJI_OPTIONS } from "@/constants/emoji-constants";
 
 // Create the auth context
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -28,16 +25,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const isMobile = useIsMobile();
 
   useEffect(() => {
-    // Subscribe to auth state changes
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       setLoading(true);
       try {
         if (firebaseUser) {
-          // User is signed in
           const userDoc = await getDoc(doc(firestore, "users", firebaseUser.uid));
           
           if (userDoc.exists()) {
-            // If we have additional user data in Firestore
             const userData = userDoc.data();
             setUser({
               id: firebaseUser.uid,
@@ -47,17 +41,15 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
               photoURL: firebaseUser.photoURL || undefined
             });
           } else {
-            // If we only have the Firebase auth user data
             setUser({
               id: firebaseUser.uid,
               email: firebaseUser.email!,
               displayName: firebaseUser.displayName,
-              emojiAvatar: "🍰", // Default emoji
+              emojiAvatar: "🍰",
               photoURL: firebaseUser.photoURL || undefined
             });
           }
         } else {
-          // User is signed out
           setUser(null);
         }
       } catch (err) {
@@ -68,11 +60,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       }
     });
 
-    // Cleanup subscription on unmount
     return () => unsubscribe();
   }, []);
 
-  // Sign up with email and password
   const signUp = async (email: string, password: string, displayName: string, emoji: string) => {
     try {
       setLoading(true);
@@ -80,12 +70,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       
       const result = await createUserWithEmailAndPassword(auth, email, password);
       
-      // Update profile
       await updateProfile(result.user, {
         displayName: displayName
       });
       
-      // Store additional user data in Firestore
       await setDoc(doc(firestore, "users", result.user.uid), {
         displayName,
         email,
@@ -103,7 +91,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
-  // Sign in with email and password
   const signInWithEmail = async (email: string, password: string) => {
     try {
       setLoading(true);
@@ -119,14 +106,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
-  // Sign in with Google
   const signInWithGoogle = async () => {
     try {
       setLoading(true);
       setError(null);
       const result = await signInWithPopup(auth, googleProvider);
       
-      // Check if user exists in Firestore, if not create a new user document
       const userDoc = await getDoc(doc(firestore, "users", result.user.uid));
       
       if (!userDoc.exists()) {
@@ -151,7 +136,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
-  // Sign in with Apple
   const signInWithApple = async () => {
     if (isMobile) {
       toast.error("Apple Sign In is currently only available on web. Please use email or Google login.");
@@ -163,7 +147,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       setError(null);
       const result = await signInWithPopup(auth, appleProvider);
       
-      // Check if user exists in Firestore, if not create a new user document
       const userDoc = await getDoc(doc(firestore, "users", result.user.uid));
       
       if (!userDoc.exists()) {
@@ -188,7 +171,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
-  // Sign out
   const signOut = async () => {
     try {
       await firebaseSignOut(auth);

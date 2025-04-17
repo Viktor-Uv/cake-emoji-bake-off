@@ -1,7 +1,8 @@
 
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth, EMOJI_OPTIONS } from "@/contexts/AuthContext";
+import { useAuth } from "@/contexts/AuthContext";
+import { EMOJI_OPTIONS } from "@/constants/emoji-constants";
 import { Button } from "@/components/ui/button";
 import {
   Card,

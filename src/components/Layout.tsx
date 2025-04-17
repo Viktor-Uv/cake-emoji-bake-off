@@ -2,7 +2,7 @@
 import React from "react";
 import { Outlet } from "react-router-dom";
 import BottomNav from "./BottomNav";
-import { EMOJI_OPTIONS } from "@/contexts/AuthContext";
+import { EMOJI_OPTIONS } from "@/constants/emoji-constants";
 
 const Layout: React.FC = () => {
   return (
