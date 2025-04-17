@@ -5,6 +5,8 @@ export interface User {
   displayName: string | null;
   emojiAvatar: string;
   photoURL?: string;
+  createdAt?: Date;
+  cakeIds?: string[];
 }
 
 export interface AuthContextType {
@@ -15,5 +17,6 @@ export interface AuthContextType {
   signInWithApple: () => Promise<void>;
   signUp: (email: string, password: string, displayName: string, emoji: string) => Promise<void>;
   signOut: () => Promise<void>;
+  updateUserAvatar: (emoji: string) => Promise<boolean>;
   error: string | null;
 }

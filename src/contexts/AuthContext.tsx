@@ -27,42 +27,70 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const isMobile = useIsMobile();
   const navigate = useNavigate();
 
+  // Helper function to create user document
+  const createUserDocument = async (firebaseUser: any, additionalData = {}) => {
+    if (!firebaseUser) return null;
+    
+    const userRef = doc(firestore, "users", firebaseUser.uid);
+    const userSnap = await getDoc(userRef);
+    
+    if (!userSnap.exists()) {
+      const { email, displayName, photoURL } = firebaseUser;
+      const createdAt = new Date();
+      const randomEmoji = EMOJI_OPTIONS[Math.floor(Math.random() * EMOJI_OPTIONS.length)];
+      
+      try {
+        await setDoc(userRef, {
+          email,
+          displayName: displayName || "Cake Baker",
+          emojiAvatar: randomEmoji,
+          photoURL: photoURL || null,
+          createdAt,
+          cakeIds: [],
+          ...additionalData
+        });
+        
+        console.log("User document created successfully!");
+        return {
+          id: firebaseUser.uid,
+          email,
+          displayName: displayName || "Cake Baker",
+          emojiAvatar: randomEmoji,
+          photoURL: photoURL || undefined,
+          createdAt,
+          cakeIds: []
+        };
+      } catch (error) {
+        console.error("Error creating user document:", error);
+        toast.error("Failed to create user profile. Please try again.");
+        return null;
+      }
+    } else {
+      // Document exists, return data
+      const userData = userSnap.data();
+      return {
+        id: firebaseUser.uid,
+        email: firebaseUser.email || userData.email,
+        displayName: firebaseUser.displayName || userData.displayName,
+        emojiAvatar: userData.emojiAvatar || "🍰",
+        photoURL: firebaseUser.photoURL || userData.photoURL,
+        createdAt: userData.createdAt,
+        cakeIds: userData.cakeIds || []
+      };
+    }
+  };
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       setLoading(true);
       try {
         if (firebaseUser) {
-          const userDoc = await getDoc(doc(firestore, "users", firebaseUser.uid));
+          const userData = await createUserDocument(firebaseUser);
           
-          if (userDoc.exists()) {
-            const userData = userDoc.data();
-            setUser({
-              id: firebaseUser.uid,
-              email: firebaseUser.email!,
-              displayName: firebaseUser.displayName || userData.displayName,
-              emojiAvatar: userData.emojiAvatar || "🍰",
-              photoURL: firebaseUser.photoURL || undefined
-            });
-          } else {
-            // Create user document if it doesn't exist
-            const randomEmoji = EMOJI_OPTIONS[Math.floor(Math.random() * EMOJI_OPTIONS.length)];
-            await setDoc(doc(firestore, "users", firebaseUser.uid), {
-              displayName: firebaseUser.displayName || "Cake Baker",
-              email: firebaseUser.email,
-              emojiAvatar: randomEmoji,
-              createdAt: new Date()
-            });
-            
-            setUser({
-              id: firebaseUser.uid,
-              email: firebaseUser.email!,
-              displayName: firebaseUser.displayName || "Cake Baker",
-              emojiAvatar: randomEmoji,
-              photoURL: firebaseUser.photoURL || undefined
-            });
+          if (userData) {
+            setUser(userData);
+            console.log("User authenticated:", userData);
           }
-          // Navigate to profile page after successful authentication
-          navigate('/profile');
         } else {
           setUser(null);
         }
@@ -75,7 +103,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     });
 
     return () => unsubscribe();
-  }, [navigate]);
+  }, []);
 
   const signUp = async (email: string, password: string, displayName: string, emoji: string) => {
     try {
@@ -88,11 +116,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         displayName: displayName
       });
       
-      await setDoc(doc(firestore, "users", result.user.uid), {
-        displayName,
-        email,
-        emojiAvatar: emoji,
-        createdAt: new Date()
+      // Create user document with emoji avatar
+      await createUserDocument(result.user, { 
+        displayName, 
+        email, 
+        emojiAvatar: emoji, 
+        createdAt: new Date(),
+        cakeIds: []
       });
       
       toast.success("Account created successfully!");
@@ -128,19 +158,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       setError(null);
       const result = await signInWithPopup(auth, googleProvider);
       
-      const userDoc = await getDoc(doc(firestore, "users", result.user.uid));
-      
-      if (!userDoc.exists()) {
-        const randomEmoji = EMOJI_OPTIONS[Math.floor(Math.random() * EMOJI_OPTIONS.length)];
-        
-        await setDoc(doc(firestore, "users", result.user.uid), {
-          displayName: result.user.displayName,
-          email: result.user.email,
-          emojiAvatar: randomEmoji,
-          photoURL: result.user.photoURL,
-          createdAt: new Date()
-        });
-      }
+      // Create user document if not exists
+      await createUserDocument(result.user);
       
       toast.success("Signed in with Google successfully!");
       navigate('/profile');
@@ -164,19 +183,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       setError(null);
       const result = await signInWithPopup(auth, appleProvider);
       
-      const userDoc = await getDoc(doc(firestore, "users", result.user.uid));
-      
-      if (!userDoc.exists()) {
-        const randomEmoji = EMOJI_OPTIONS[Math.floor(Math.random() * EMOJI_OPTIONS.length)];
-        
-        await setDoc(doc(firestore, "users", result.user.uid), {
-          displayName: result.user.displayName || "Cake Baker",
-          email: result.user.email,
-          emojiAvatar: randomEmoji,
-          photoURL: result.user.photoURL,
-          createdAt: new Date()
-        });
-      }
+      // Create user document if not exists
+      await createUserDocument(result.user);
       
       toast.success("Signed in with Apple successfully!");
       navigate('/profile');
@@ -200,6 +208,27 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
+  const updateUserAvatar = async (emoji: string) => {
+    if (!user) return;
+    
+    try {
+      const userRef = doc(firestore, "users", user.id);
+      await updateDoc(userRef, { emojiAvatar: emoji });
+      
+      setUser({
+        ...user,
+        emojiAvatar: emoji
+      });
+      
+      toast.success("Avatar updated successfully!");
+      return true;
+    } catch (err) {
+      console.error("Error updating avatar:", err);
+      toast.error("Failed to update avatar. Please try again.");
+      return false;
+    }
+  };
+
   const value = {
     user,
     loading,
@@ -208,6 +237,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     signInWithApple,
     signUp,
     signOut,
+    updateUserAvatar,
     error
   };
 

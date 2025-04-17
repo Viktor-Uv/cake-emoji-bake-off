@@ -1,12 +1,11 @@
 
 import React, { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import { EMOJI_OPTIONS } from "@/constants/emoji-constants";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import EmojiPicker from "@/components/EmojiPicker";
 import { Input } from "@/components/ui/input";
-import { doc, getDoc, updateDoc, collection, query, where, getDocs, orderBy } from "firebase/firestore";
+import { doc, getDoc, collection, query, where, getDocs, orderBy } from "firebase/firestore";
 import { firestore } from "@/lib/firebase";
 import CakeCard from "@/components/CakeCard";
 import { Cake } from "@/types/cake";
@@ -23,7 +22,7 @@ import { toast } from "@/components/ui/sonner";
 type SortOption = "date-desc" | "date-asc" | "rating-desc";
 
 const Profile: React.FC = () => {
-  const { user, signOut, loading } = useAuth();
+  const { user, signOut, loading, updateUserAvatar } = useAuth();
   const navigate = useNavigate();
   const [userCakes, setUserCakes] = useState<Cake[]>([]);
   const [sortOption, setSortOption] = useState<SortOption>("date-desc");
@@ -89,23 +88,8 @@ const Profile: React.FC = () => {
     }
   };
   
-  // This is just a placeholder for avatar updates
   const handleAvatarChange = async (emoji: string) => {
-    if (!user) return;
-    
-    try {
-      const userRef = doc(firestore, "users", user.id);
-      await updateDoc(userRef, {
-        emojiAvatar: emoji
-      });
-      
-      toast.success("Avatar updated successfully!");
-      // After updating, refresh the page to see changes
-      window.location.reload();
-    } catch (error) {
-      console.error("Error updating avatar:", error);
-      toast.error("Failed to update avatar. Please try again.");
-    }
+    await updateUserAvatar(emoji);
   };
 
   if (loading) {
@@ -158,6 +142,11 @@ const Profile: React.FC = () => {
               <div className="text-6xl mb-4">{user.emojiAvatar}</div>
               <h1 className="text-xl font-bold">{user.displayName || "Cake Baker"}</h1>
               <p className="text-gray-600 text-sm">{user.email}</p>
+              {user.createdAt && (
+                <p className="text-gray-500 text-xs mt-1">
+                  Member since {new Date(user.createdAt).toLocaleDateString()}
+                </p>
+              )}
             </div>
             
             <div className="space-y-4">
