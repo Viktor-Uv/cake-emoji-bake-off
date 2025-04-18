@@ -1,32 +1,20 @@
 
 import React, { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import EmojiPicker from "@/components/EmojiPicker";
-import { Input } from "@/components/ui/input";
-import { doc, getDoc, collection, query, where, getDocs, orderBy } from "firebase/firestore";
+import { collection, query, where, getDocs, orderBy } from "firebase/firestore";
 import { firestore } from "@/lib/firebase";
-import CakeCard from "@/components/CakeCard";
 import { Cake } from "@/types/cake";
-import { ArrowDownAZ, ArrowUpAZ, CalendarRange, Star } from "lucide-react";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { toast } from "@/components/ui/sonner";
-
-type SortOption = "date-desc" | "date-asc" | "rating-desc";
+import UserProfileCard from "@/components/profile/UserProfileCard";
+import UserCakesSection, { SortOption } from "@/components/profile/UserCakesSection";
 
 const Profile: React.FC = () => {
   const { user, signOut, loading, updateUserAvatar } = useAuth();
-  const navigate = useNavigate();
   const [userCakes, setUserCakes] = useState<Cake[]>([]);
   const [sortOption, setSortOption] = useState<SortOption>("date-desc");
   const [loadingCakes, setLoadingCakes] = useState(false);
+  const navigate = useNavigate();
   
   useEffect(() => {
     if (user) {
@@ -87,7 +75,7 @@ const Profile: React.FC = () => {
       setLoadingCakes(false);
     }
   };
-  
+
   const handleAvatarChange = async (emoji: string) => {
     await updateUserAvatar(emoji);
   };
@@ -135,126 +123,21 @@ const Profile: React.FC = () => {
   return (
     <div className="max-w-4xl mx-auto p-4">
       <div className="flex flex-col md:flex-row md:items-start gap-6">
-        {/* User Profile Section */}
         <div className="w-full md:w-1/3">
-          <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-            <div className="flex flex-col items-center mb-6">
-              <div className="text-6xl mb-4">{user.emojiAvatar}</div>
-              <h1 className="text-xl font-bold">{user.displayName || "Cake Baker"}</h1>
-              <p className="text-gray-600 text-sm">{user.email}</p>
-              {user.createdAt && (
-                <p className="text-gray-500 text-xs mt-1">
-                  Member since {new Date(user.createdAt).toLocaleDateString()}
-                </p>
-              )}
-            </div>
-            
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium mb-2">Display Name</label>
-                <Input value={user.displayName || ""} disabled />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium mb-2">Email</label>
-                <Input value={user.email} disabled />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium mb-2">Emoji Avatar</label>
-                <div className="flex items-center gap-4">
-                  <EmojiPicker 
-                    value={user.emojiAvatar} 
-                    onChange={handleAvatarChange} 
-                  />
-                  <span className="text-xs text-gray-500">
-                    Click to change your avatar
-                  </span>
-                </div>
-              </div>
-            </div>
-            
-            <div className="mt-6">
-              <Button 
-                className="w-full"
-                onClick={() => navigate("/create")}
-              >
-                Upload New Cake
-              </Button>
-              
-              <Button 
-                variant="outline" 
-                className="w-full mt-2"
-                onClick={signOut}
-              >
-                Sign Out
-              </Button>
-            </div>
-          </div>
+          <UserProfileCard 
+            user={user}
+            onAvatarChange={handleAvatarChange}
+            onSignOut={signOut}
+          />
         </div>
         
-        {/* User Cakes Section */}
         <div className="w-full md:w-2/3">
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
-              <h2 className="text-xl font-bold mb-2 sm:mb-0">Your Cake Creations</h2>
-              
-              <div className="w-full sm:w-auto">
-                <Select
-                  value={sortOption}
-                  onValueChange={(value) => setSortOption(value as SortOption)}
-                >
-                  <SelectTrigger className="w-full sm:w-[180px]">
-                    <SelectValue placeholder="Sort by" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="date-desc">
-                      <div className="flex items-center gap-2">
-                        <CalendarRange className="h-4 w-4" />
-                        <span>Newest First</span>
-                      </div>
-                    </SelectItem>
-                    <SelectItem value="date-asc">
-                      <div className="flex items-center gap-2">
-                        <CalendarRange className="h-4 w-4" />
-                        <span>Oldest First</span>
-                      </div>
-                    </SelectItem>
-                    <SelectItem value="rating-desc">
-                      <div className="flex items-center gap-2">
-                        <Star className="h-4 w-4" />
-                        <span>Highest Rated</span>
-                      </div>
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            
-            {loadingCakes ? (
-              <div className="flex flex-col items-center justify-center py-12">
-                <div className="animate-spin text-4xl mb-4">🍰</div>
-                <p>Loading your cakes...</p>
-              </div>
-            ) : userCakes.length > 0 ? (
-              <div className="grid grid-cols-1 gap-4">
-                {userCakes.map((cake) => (
-                  <CakeCard key={cake.id} cake={cake} />
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-12">
-                <div className="text-4xl mb-4">🎂</div>
-                <h3 className="text-lg font-medium mb-2">No cakes yet!</h3>
-                <p className="text-gray-500 mb-6">
-                  You haven't uploaded any Easter cake creations yet.
-                </p>
-                <Button onClick={() => navigate("/create")}>
-                  Upload Your First Cake
-                </Button>
-              </div>
-            )}
-          </div>
+          <UserCakesSection
+            cakes={userCakes}
+            sortOption={sortOption}
+            onSortChange={setSortOption}
+            isLoading={loadingCakes}
+          />
         </div>
       </div>
     </div>
