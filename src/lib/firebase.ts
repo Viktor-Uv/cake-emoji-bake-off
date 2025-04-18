@@ -1,4 +1,3 @@
-
 import { initializeApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider, OAuthProvider } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
@@ -6,7 +5,6 @@ import { getStorage } from "firebase/storage";
 
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-// For demo purposes, we'll use a mock config. In a real app, you'd use real config values.
 const firebaseConfig = {
   apiKey: "AIzaSyAurME5Ue2NrYnogKGdzp2iKWY6graFqIw",
   authDomain: "cake-off.firebaseapp.com",
