@@ -6,6 +6,7 @@ import { collection, query, where, getDocs, orderBy } from "firebase/firestore";
 import { firestore } from "@/lib/firebase";
 import { Cake } from "@/types/cake";
 import { toast } from "@/components/ui/sonner";
+import { Button } from "@/components/ui/button"; // Add this import
 import UserProfileCard from "@/components/profile/UserProfileCard";
 import UserCakesSection, { SortOption } from "@/components/profile/UserCakesSection";
 
