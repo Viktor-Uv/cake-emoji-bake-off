@@ -168,9 +168,7 @@ export async function getCakesByRating(): Promise<Cake[]> {
   try {
     const cakesQuery = query(
       collection(firestore, "cakes"), 
-      orderBy("averageRating", "desc"),
-      // Only include cakes with at least one rating
-      where("averageRating", ">", 0)
+      orderBy("averageRating", "desc")
     );
     
     const cakeSnapshot = await getDocs(cakesQuery);
