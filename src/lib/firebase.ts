@@ -4,15 +4,15 @@ import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 
 // Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+// Values should be provided using environment variables
 const firebaseConfig = {
-  apiKey: "AIzaSyAurME5Ue2NrYnogKGdzp2iKWY6graFqIw",
-  authDomain: "cake-off.firebaseapp.com",
-  projectId: "cake-off",
-  storageBucket: "cake-off.firebasestorage.app",
-  messagingSenderId: "97609739783",
-  appId: "1:97609739783:web:320ed939547c9de44384a2",
-  measurementId: "G-VMHEH0QS6G"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
 };
 
 // Initialize Firebase
@@ -22,7 +22,3 @@ export const firestore = getFirestore(app);
 export const storage = getStorage(app);
 export const googleProvider = new GoogleAuthProvider();
 export const appleProvider = new OAuthProvider('apple.com');
-
-// In real implementation, replace with your actual Firebase config
-// and implement proper error handling for authentication
-console.log("Note: This is using mock Firebase configuration for demonstration purposes.");
