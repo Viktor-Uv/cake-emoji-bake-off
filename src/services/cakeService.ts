@@ -1,4 +1,3 @@
-
 import { 
   collection, 
   addDoc, 
@@ -26,7 +25,7 @@ import { User } from "@/types/auth";
 // Create a new cake
 export async function createCake(
   title: string, 
-  description: string, 
+  description: string | undefined, // Make description optional
   images: File[], 
   mainImageIndex: number,
   currentUser: User
@@ -60,7 +59,7 @@ export async function createCake(
     // Now, create the cake document in Firestore
     const cakeData = {
       title,
-      description,
+      description: description || "", // Default to empty string if no description
       userId: currentUser.id,
       userName: currentUser.displayName || "Anonymous Baker",
       userEmoji: currentUser.emojiAvatar,
@@ -76,6 +75,66 @@ export async function createCake(
   } catch (error) {
     console.error("Error creating cake:", error);
     throw new Error("Failed to create cake. Please try again.");
+  }
+}
+
+// Update an existing cake
+export async function updateCake(
+  cakeId: string,
+  title: string,
+  description: string | undefined,
+  newImages?: File[],
+  mainImageIndex?: number,
+): Promise<void> {
+  try {
+    const cakeRef = doc(firestore, "cakes", cakeId);
+    const cakeDoc = await getDoc(cakeRef);
+    
+    if (!cakeDoc.exists()) {
+      throw new Error("Cake not found");
+    }
+    
+    const updateData: any = {
+      title,
+      description: description || "", // Default to empty string if no description
+    };
+    
+    // If new images were provided, handle them
+    if (newImages && newImages.length > 0) {
+      const uploadedImages: CakeImage[] = [];
+      
+      // First, delete all existing images from storage
+      const existingImages = cakeDoc.data().images || [];
+      for (const image of existingImages) {
+        const imageRef = ref(storage, image.id);
+        await deleteObject(imageRef);
+      }
+      
+      // Upload new images
+      for (let i = 0; i < newImages.length; i++) {
+        const image = newImages[i];
+        const isMain = i === (mainImageIndex || 0);
+        
+        const imagePath = `cakes/${cakeDoc.data().userId}/${Date.now()}_${i}_${image.name}`;
+        const imageRef = ref(storage, imagePath);
+        
+        await uploadBytes(imageRef, image);
+        const url = await getDownloadURL(imageRef);
+        
+        uploadedImages.push({
+          id: imagePath,
+          url,
+          isMain
+        });
+      }
+      
+      updateData.images = uploadedImages;
+    }
+    
+    await updateDoc(cakeRef, updateData);
+  } catch (error) {
+    console.error("Error updating cake:", error);
+    throw new Error("Failed to update cake. Please try again.");
   }
 }
 
