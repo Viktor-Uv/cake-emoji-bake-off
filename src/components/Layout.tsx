@@ -14,7 +14,7 @@ const Layout: React.FC = () => {
             <span className="text-3xl animate-wiggle inline-block">
               {EMOJI_OPTIONS[Math.floor(Math.random() * EMOJI_OPTIONS.length)]}
             </span>
-            <span className="drop-shadow-md">Easter Cake Bake-Off</span>
+            <span className="drop-shadow-md whitespace-nowrap">Easter Cake Bake-Off</span>
           </h1>
         </div>
       </header>
