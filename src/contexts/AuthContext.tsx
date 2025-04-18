@@ -8,7 +8,7 @@ import {
   onAuthStateChanged,
   updateProfile,
 } from "firebase/auth";
-import { doc, setDoc, getDoc } from "firebase/firestore";
+import { doc, setDoc, getDoc, updateDoc } from "firebase/firestore";
 import { auth, firestore, googleProvider, appleProvider } from "@/lib/firebase";
 import { AuthContextType, User } from "@/types/auth";
 import { toast } from "@/components/ui/sonner";
