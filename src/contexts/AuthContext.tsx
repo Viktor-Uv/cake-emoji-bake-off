@@ -40,7 +40,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       const randomEmoji = EMOJI_OPTIONS[Math.floor(Math.random() * EMOJI_OPTIONS.length)];
       
       try {
-        await setDoc(userRef, {
+        const userData = {
           email,
           displayName: displayName || "Cake Baker",
           emojiAvatar: randomEmoji,
@@ -48,7 +48,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           createdAt,
           cakeIds: [],
           ...additionalData
-        });
+        };
+        
+        // Explicitly set the document with the user data
+        await setDoc(userRef, userData);
         
         console.log("User document created successfully!");
         return {
@@ -112,15 +115,30 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       
       const result = await createUserWithEmailAndPassword(auth, email, password);
       
+      // Update the user profile in Firebase Auth
       await updateProfile(result.user, {
         displayName: displayName
       });
       
-      // Create user document with emoji avatar
-      await createUserDocument(result.user, { 
+      // Create user document with custom data
+      const userData = {
         displayName, 
         email, 
         emojiAvatar: emoji, 
+        createdAt: new Date(),
+        cakeIds: []
+      };
+      
+      // Explicitly create the user document in Firestore
+      const userRef = doc(firestore, "users", result.user.uid);
+      await setDoc(userRef, userData);
+      
+      // Set the user state with the new data
+      setUser({
+        id: result.user.uid,
+        email,
+        displayName,
+        emojiAvatar: emoji,
         createdAt: new Date(),
         cakeIds: []
       });
