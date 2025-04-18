@@ -8,7 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import RatingStars from "./RatingStars";
 import { toast } from "@/components/ui/sonner";
-import { rateCake } from "@/services/cakeService";
+import { rateCake, updateCake } from "@/services/cakeService";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import ImageUploader from "@/components/ImageUploader";
