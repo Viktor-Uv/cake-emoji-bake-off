@@ -50,6 +50,32 @@ const CakeCard: React.FC<CakeCardProps> = ({ cake, onRatingChange }) => {
     }
   };
 
+  // Safely format the date, handling potential invalid date values
+  const formatDate = (dateValue: any): string => {
+    try {
+      // Check if dateValue is a valid date
+      if (!dateValue) return "Unknown date";
+      
+      // If it's a timestamp from Firestore with toDate method
+      if (dateValue && typeof dateValue.toDate === 'function') {
+        return format(dateValue.toDate(), "MMM d, yyyy");
+      }
+      
+      // For regular Date objects or timestamp converted to Date
+      const date = dateValue instanceof Date ? dateValue : new Date(dateValue);
+      
+      // Validate the date is not invalid
+      if (isNaN(date.getTime())) {
+        return "Unknown date";
+      }
+      
+      return format(date, "MMM d, yyyy");
+    } catch (error) {
+      console.error("Error formatting date:", error);
+      return "Unknown date";
+    }
+  };
+
   return (
     <>
       <Card className="mb-6 overflow-hidden cake-shadow hover:shadow-lg transition-shadow">
@@ -60,7 +86,7 @@ const CakeCard: React.FC<CakeCardProps> = ({ cake, onRatingChange }) => {
               <span className="font-medium">{cake.userName || "Anonymous Baker"}</span>
             </div>
             <span className="text-xs text-gray-500">
-              {format(new Date(cake.createdAt), "MMM d, yyyy")}
+              {formatDate(cake.createdAt)}
             </span>
           </div>
         </CardHeader>
