@@ -14,7 +14,6 @@ export interface AuthContextType {
   loading: boolean;
   signInWithEmail: (email: string, password: string) => Promise<void>;
   signInWithGoogle: () => Promise<void>;
-  signInWithApple: () => Promise<void>;
   signUp: (email: string, password: string, displayName: string, emoji: string) => Promise<void>;
   signOut: () => Promise<void>;
   updateUserAvatar: (emoji: string) => Promise<boolean>;
