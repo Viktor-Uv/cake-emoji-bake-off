@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import {
   createUserWithEmailAndPassword,
@@ -9,7 +8,7 @@ import {
   updateProfile,
 } from "firebase/auth";
 import { doc, setDoc, getDoc, updateDoc } from "firebase/firestore";
-import { auth, firestore, googleProvider, appleProvider } from "@/lib/firebase";
+import { auth, firestore, googleProvider } from "@/lib/firebase";
 import { AuthContextType, User } from "@/types/auth";
 import { toast } from "@/components/ui/sonner";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -190,31 +189,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
-  const signInWithApple = async () => {
-    if (isMobile) {
-      toast.error("Apple Sign In is currently only available on web. Please use email or Google login.");
-      return;
-    }
-    
-    try {
-      setLoading(true);
-      setError(null);
-      const result = await signInWithPopup(auth, appleProvider);
-      
-      // Create user document if not exists
-      await createUserDocument(result.user);
-      
-      toast.success("Signed in with Apple successfully!");
-      navigate('/profile');
-    } catch (err: any) {
-      console.error("Error signing in with Apple:", err);
-      setError(err.message);
-      toast.error("Failed to sign in with Apple. Please try again.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const signOut = async () => {
     try {
       await firebaseSignOut(auth);
@@ -252,7 +226,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     loading,
     signInWithEmail,
     signInWithGoogle,
-    signInWithApple,
     signUp,
     signOut,
     updateUserAvatar,

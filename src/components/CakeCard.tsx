@@ -210,6 +210,15 @@ const CakeCard: React.FC<CakeCardProps> = ({ cake, onRatingChange, onCakeUpdate,
     </CardContent>
   );
 
+  // Helper function to get appropriate image URL
+  const getImageUrl = (image: any) => {
+    return image.thumbnailUrl || image.url;
+  };
+
+  const getFullImageUrl = (image: any) => {
+    return image.url;
+  };
+
   return (
     <>
       <Card className="mb-6 overflow-hidden cake-shadow hover:shadow-lg transition-shadow">
@@ -279,7 +288,7 @@ const CakeCard: React.FC<CakeCardProps> = ({ cake, onRatingChange, onCakeUpdate,
                     <CarouselItem key={image.id}>
                       <div className="h-64 w-full overflow-hidden">
                         <img 
-                          src={image.url} 
+                          src={getImageUrl(image)} 
                           alt={`${cake.title} - ${index + 1}`} 
                           className="w-full h-full object-cover transition-transform hover:scale-105"
                         />
@@ -359,7 +368,7 @@ const CakeCard: React.FC<CakeCardProps> = ({ cake, onRatingChange, onCakeUpdate,
                 <CarouselItem key={image.id}>
                   <div className="flex aspect-square items-center justify-center p-2">
                     <img 
-                      src={image.url} 
+                      src={getFullImageUrl(image)} 
                       alt={`${cake.title} - Photo ${index + 1}`}
                       className="w-full h-full object-contain"
                     />

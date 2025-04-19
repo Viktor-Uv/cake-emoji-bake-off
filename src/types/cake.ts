@@ -3,6 +3,8 @@ export interface CakeImage {
   id: string;
   url: string;
   isMain: boolean;
+  thumbnailUrl?: string;
+  thumbnailPath?: string;
 }
 
 export interface CakeRating {

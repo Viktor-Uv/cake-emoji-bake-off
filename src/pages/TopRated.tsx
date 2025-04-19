@@ -10,10 +10,12 @@ import { toast } from "@/components/ui/sonner";
 
 const TopRated: React.FC = () => {
   const [cakes, setCakes] = useState<Cake[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const { user } = useAuth();
 
   const fetchCakes = async () => {
+    if (!user) return; // Skip fetching if user is not signed in
+    
     try {
       setLoading(true);
       const fetchedCakes = await getCakesByRating();
@@ -27,20 +29,41 @@ const TopRated: React.FC = () => {
   };
 
   useEffect(() => {
-    fetchCakes();
-  }, []);
+    if (user) {
+      fetchCakes();
+    } else {
+      // Reset cakes when user logs out
+      setCakes([]);
+      setLoading(false);
+    }
+  }, [user]);
 
   const handleRatingChange = () => {
-    fetchCakes();
+    if (user) fetchCakes();
   };
   
   const handleCakeUpdate = () => {
-    fetchCakes();
+    if (user) fetchCakes();
   };
   
   const handleCakeDelete = (cakeId: string) => {
     setCakes(cakes.filter(cake => cake.id !== cakeId));
   };
+
+  if (!user) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[70vh] text-center p-4">
+        <div className="text-6xl mb-6">⭐</div>
+        <h2 className="text-2xl font-bold mb-4">Sign in to see top rated cakes</h2>
+        <p className="mb-6 text-gray-600">
+          Join our community to rate and discover amazing cake creations.
+        </p>
+        <Link to="/login">
+          <Button>Sign In</Button>
+        </Link>
+      </div>
+    );
+  }
 
   if (loading) {
     return (

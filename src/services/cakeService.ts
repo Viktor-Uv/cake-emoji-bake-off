@@ -1,3 +1,4 @@
+
 import { 
   collection, 
   addDoc, 
@@ -20,6 +21,7 @@ import {
 import { firestore, storage } from "@/lib/firebase";
 import { Cake, CakeImage, CakeRating } from "@/types/cake";
 import { User } from "@/types/auth";
+import { processImage } from "@/utils/imageProcessor";
 
 // Create a new cake
 export async function createCake(
@@ -37,21 +39,39 @@ export async function createCake(
       const image = images[i];
       const isMain = i === mainImageIndex;
       
+      // Process image to webp format
+      const { mainImage, thumbnail } = await processImage(image);
+      
       // Create a unique path for each image
-      const imagePath = `cakes/${currentUser.id}/${Date.now()}_${i}_${image.name}`;
+      const imagePath = `cakes/${currentUser.id}/${Date.now()}_${i}_${mainImage.name}`;
       const imageRef = ref(storage, imagePath);
       
-      // Upload the image
-      await uploadBytes(imageRef, image);
+      // Upload the main image
+      await uploadBytes(imageRef, mainImage);
       
       // Get the download URL
       const url = await getDownloadURL(imageRef);
+      
+      // Handle thumbnail if available
+      let thumbnailUrl: string | undefined;
+      let thumbnailPath: string | undefined;
+      
+      if (thumbnail) {
+        thumbnailPath = `cakes/${currentUser.id}/${Date.now()}_${i}_thumb_${thumbnail.name}`;
+        const thumbnailRef = ref(storage, thumbnailPath);
+        
+        // Upload the thumbnail
+        await uploadBytes(thumbnailRef, thumbnail);
+        thumbnailUrl = await getDownloadURL(thumbnailRef);
+      }
       
       // Add to our array
       uploadedImages.push({
         id: imagePath, // Use the storage path as the ID for easy deletion later
         url,
-        isMain
+        isMain,
+        thumbnailUrl,
+        thumbnailPath
       });
     }
     
@@ -116,6 +136,12 @@ export async function updateCake(
         const imageRef = ref(storage, image.id);
         try {
           await deleteObject(imageRef);
+          
+          // Delete thumbnail if it exists
+          if (image.thumbnailPath) {
+            const thumbnailRef = ref(storage, image.thumbnailPath);
+            await deleteObject(thumbnailRef);
+          }
         } catch (error) {
           console.error("Error deleting image:", image.id, error);
           // Continue even if image deletion fails
@@ -134,16 +160,34 @@ export async function updateCake(
       for (let i = 0; i < newImages.length; i++) {
         const image = newImages[i];
         
-        const imagePath = `cakes/${cakeDoc.data().userId}/${Date.now()}_${i}_${image.name}`;
+        // Process image to webp format
+        const { mainImage, thumbnail } = await processImage(image);
+        
+        const imagePath = `cakes/${cakeDoc.data().userId}/${Date.now()}_${i}_${mainImage.name}`;
         const imageRef = ref(storage, imagePath);
         
-        await uploadBytes(imageRef, image);
+        await uploadBytes(imageRef, mainImage);
         const url = await getDownloadURL(imageRef);
+        
+        // Handle thumbnail if available
+        let thumbnailUrl: string | undefined;
+        let thumbnailPath: string | undefined;
+        
+        if (thumbnail) {
+          thumbnailPath = `cakes/${cakeDoc.data().userId}/${Date.now()}_${i}_thumb_${thumbnail.name}`;
+          const thumbnailRef = ref(storage, thumbnailPath);
+          
+          // Upload the thumbnail
+          await uploadBytes(thumbnailRef, thumbnail);
+          thumbnailUrl = await getDownloadURL(thumbnailRef);
+        }
         
         uploadedImages.push({
           id: imagePath,
           url,
-          isMain: false // New images are not main by default
+          isMain: false, // New images are not main by default
+          thumbnailUrl,
+          thumbnailPath
         });
       }
       
@@ -303,6 +347,12 @@ export async function deleteCake(cakeId: string): Promise<void> {
       const imageRef = ref(storage, image.id);
       try {
         await deleteObject(imageRef);
+        
+        // Delete thumbnail if it exists
+        if (image.thumbnailPath) {
+          const thumbnailRef = ref(storage, image.thumbnailPath);
+          await deleteObject(thumbnailRef);
+        }
       } catch (error) {
         console.error("Error deleting image:", error);
         // Continue deletion even if an image fails
