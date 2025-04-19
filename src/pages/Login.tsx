@@ -18,7 +18,7 @@ const Login: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isSignIn, setIsSignIn] = useState(true);
-  const { signInWithEmail, signInWithGoogle, signInWithApple, loading, error } = useAuth();
+  const { signInWithEmail, signInWithGoogle, loading, error } = useAuth();
   const navigate = useNavigate();
 
   const handleEmailAuth = async (e: React.FormEvent) => {
@@ -37,15 +37,6 @@ const Login: React.FC = () => {
       navigate("/profile");
     } catch (error) {
       console.error("Google authentication error:", error);
-    }
-  };
-
-  const handleAppleAuth = async () => {
-    try {
-      await signInWithApple();
-      navigate("/profile");
-    } catch (error) {
-      console.error("Apple authentication error:", error);
     }
   };
 
@@ -114,14 +105,6 @@ const Login: React.FC = () => {
               disabled={loading}
             >
               Sign in with Google
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={handleAppleAuth}
-              disabled={loading}
-            >
-              Sign in with Apple
             </Button>
           </div>
         </CardContent>

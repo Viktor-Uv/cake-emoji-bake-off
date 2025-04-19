@@ -24,7 +24,7 @@ const Register: React.FC = () => {
     EMOJI_OPTIONS[Math.floor(Math.random() * EMOJI_OPTIONS.length)]
   );
   
-  const { signUp, signInWithGoogle, signInWithApple, loading, error } = useAuth();
+  const { signUp, signInWithGoogle, loading, error } = useAuth();
   const navigate = useNavigate();
 
   const handleRegister = async (e: React.FormEvent) => {
@@ -43,15 +43,6 @@ const Register: React.FC = () => {
       navigate("/profile");
     } catch (error) {
       console.error("Google authentication error:", error);
-    }
-  };
-
-  const handleAppleAuth = async () => {
-    try {
-      await signInWithApple();
-      navigate("/profile");
-    } catch (error) {
-      console.error("Apple authentication error:", error);
     }
   };
 
@@ -143,14 +134,6 @@ const Register: React.FC = () => {
               disabled={loading}
             >
               Sign up with Google
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={handleAppleAuth}
-              disabled={loading}
-            >
-              Sign up with Apple
             </Button>
           </div>
         </CardContent>
