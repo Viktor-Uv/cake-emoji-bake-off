@@ -1,16 +1,17 @@
+import { Timestamp } from 'firebase/firestore';
 
 export interface CakeImage {
   id: string;
   url: string;
   isMain: boolean;
-  thumbnailUrl?: string;
-  thumbnailPath?: string;
+  thumbnailUrl: string | null;
+  thumbnailPath: string | null;
 }
 
 export interface CakeRating {
   userId: string;
   rating: number; // 1-5
-  timestamp: Date;
+  timestamp: Timestamp;
   userName: string;
   userEmoji: string;
 }
@@ -23,7 +24,7 @@ export interface Cake {
   userName: string;
   userEmoji: string;
   images: CakeImage[];
-  createdAt: Date;
+  createdAt: Timestamp;
   ratings: CakeRating[];
   averageRating: number;
 }
