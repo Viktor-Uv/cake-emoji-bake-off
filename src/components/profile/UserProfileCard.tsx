@@ -23,7 +23,7 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
     <div className="bg-white rounded-lg shadow-md p-6">
       <div className="flex flex-col items-center mb-6">
         <div className="text-6xl mb-4">{user.emojiAvatar}</div>
-        <h1 className="text-xl font-bold">{user.displayName || "Cake Baker"}</h1>
+        <h1 className="text-xl font-bold">{user.displayName}</h1>
         <p className="text-gray-600 text-sm">{user.email}</p>
         {user.createdAt && (
           <p className="text-gray-500 text-xs mt-1">
@@ -35,7 +35,7 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
       <div className="space-y-4">
         <div>
           <label className="block text-sm font-medium mb-2">Display Name</label>
-          <Input value={user.displayName || ""} disabled />
+          <Input value={user.displayName} disabled />
         </div>
         
         <div>

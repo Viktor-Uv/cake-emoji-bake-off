@@ -80,7 +80,7 @@ export async function createCake(
       title,
       description: description || "", // Default to empty string if no description
       userId: currentUser.id,
-      userName: currentUser.displayName || "Anonymous Baker",
+      userName: currentUser.displayName,
       userEmoji: currentUser.emojiAvatar,
       images: uploadedImages,
       createdAt: serverTimestamp(),
@@ -296,7 +296,7 @@ export async function rateCake(
         userId: currentUser.id,
         rating,
         timestamp: new Date(),
-        userName: currentUser.displayName || "Anonymous Baker",
+        userName: currentUser.displayName,
         userEmoji: currentUser.emojiAvatar
       };
     } else {
@@ -305,7 +305,7 @@ export async function rateCake(
         userId: currentUser.id,
         rating,
         timestamp: new Date(),
-        userName: currentUser.displayName || "Anonymous Baker",
+        userName: currentUser.displayName,
         userEmoji: currentUser.emojiAvatar
       });
     }

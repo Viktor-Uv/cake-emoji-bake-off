@@ -2,7 +2,7 @@
 export interface User {
   id: string;
   email: string;
-  displayName: string | null;
+  displayName: string;
   emojiAvatar: string;
   photoURL?: string;
   createdAt?: Date;
