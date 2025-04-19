@@ -8,7 +8,18 @@ import {
   updateProfile,
   deleteUser
 } from "firebase/auth";
-import { doc, setDoc, getDoc, updateDoc, deleteDoc, collection, query, where, getDocs } from "firebase/firestore";
+import {
+  doc,
+  setDoc,
+  getDoc,
+  updateDoc,
+  deleteDoc,
+  collection,
+  query,
+  where,
+  getDocs,
+  Timestamp
+} from "firebase/firestore";
 import { auth, firestore, googleProvider } from "@/lib/firebase";
 import { AuthContextType, User } from "@/types/auth";
 import { toast } from "@/components/ui/sonner";
@@ -131,7 +142,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         displayName,
         emojiAvatar: emoji,
         photoURL: null,
-        createdAt: new Date(),
+        createdAt: Timestamp.now(),
         cakeIds: []
       });
       

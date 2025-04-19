@@ -1,3 +1,4 @@
+import {Timestamp} from "firebase/firestore";
 
 export interface User {
   id: string;
@@ -5,7 +6,7 @@ export interface User {
   displayName: string;
   emojiAvatar: string;
   photoURL: string | null;
-  createdAt: Date;
+  createdAt: Timestamp;
   cakeIds: string[];
 }
 
