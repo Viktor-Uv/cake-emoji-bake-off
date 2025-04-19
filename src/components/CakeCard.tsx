@@ -1,7 +1,7 @@
 
 import React, { useState } from "react";
 import { format } from "date-fns";
-import { Cake } from "@/types/cake";
+import {Cake, CakeImage} from "@/types/cake";
 import { useAuth } from "@/contexts/AuthContext";
 import { Card, CardHeader, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -31,9 +31,7 @@ const CakeCard: React.FC<CakeCardProps> = ({ cake, onRatingChange, onCakeUpdate,
   const [editedTitle, setEditedTitle] = useState(cake.title);
   const [editedDescription, setEditedDescription] = useState(cake.description);
   const [selectedImages, setSelectedImages] = useState<File[]>([]);
-  const [existingImages, setExistingImages] = useState<Array<{id: string, url: string}>>(
-    cake.images.map(img => ({ id: img.id, url: img.url }))
-  );
+  const [existingImages, setExistingImages] = useState<Array<CakeImage>>(cake.images);
   const [activeIndex, setActiveIndex] = useState(0);
   
   // Check if the current user has already rated this cake
@@ -69,11 +67,11 @@ const CakeCard: React.FC<CakeCardProps> = ({ cake, onRatingChange, onCakeUpdate,
     }
   };
 
-  const handleImagesSelected = (newImages: File[], allOrderedImages: File[]) => {
+  const handleImagesSelected = (allOrderedImages: File[]) => {
     setSelectedImages(allOrderedImages);
   };
 
-  const handleExistingImagesChange = (updatedImages: Array<{id: string, url: string}>) => {
+  const handleExistingImagesChange = (updatedImages: Array<CakeImage>) => {
     setExistingImages(updatedImages);
   };
 
@@ -93,10 +91,11 @@ const CakeCard: React.FC<CakeCardProps> = ({ cake, onRatingChange, onCakeUpdate,
       setLoading(true);
       
       // Convert existing images back to the CakeImage format
-      const formattedExistingImages = existingImages.map((img, index) => ({
+      const formattedExistingImages: CakeImage[] = existingImages.map((img) => ({
         id: img.id,
         url: img.url,
-        isMain: index === 0 // First image is main
+        thumbnailUrl: img.thumbnailUrl,
+        thumbnailPath: img.thumbnailPath
       }));
       
       await updateCake(
@@ -201,7 +200,7 @@ const CakeCard: React.FC<CakeCardProps> = ({ cake, onRatingChange, onCakeUpdate,
             setIsEditing(false);
             setEditedTitle(cake.title);
             setEditedDescription(cake.description);
-            setExistingImages(cake.images.map(img => ({ id: img.id, url: img.url })));
+            setExistingImages(cake.images);
           }}
         >
           Cancel

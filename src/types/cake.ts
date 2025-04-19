@@ -3,7 +3,6 @@ import { Timestamp } from 'firebase/firestore';
 export interface CakeImage {
   id: string;
   url: string;
-  isMain: boolean;
   thumbnailUrl: string | null;
   thumbnailPath: string | null;
 }

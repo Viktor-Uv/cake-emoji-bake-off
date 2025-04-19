@@ -4,9 +4,9 @@ export interface User {
   email: string;
   displayName: string;
   emojiAvatar: string;
-  photoURL?: string;
-  createdAt?: Date;
-  cakeIds?: string[];
+  photoURL: string | null;
+  createdAt: Date;
+  cakeIds: string[];
 }
 
 export interface AuthContextType {

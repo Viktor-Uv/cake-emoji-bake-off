@@ -26,7 +26,7 @@ const cakesCollection = collection(firestore, "cakes");
 // Create a new cake
 export async function createCake(
   title: string,
-  description: string | undefined, // Make description optional
+  description: string | null, // Make description optional
   images: File[],
   mainImageIndex: number,
   currentUser: User,
@@ -56,8 +56,8 @@ export async function createCake(
       const url = await getDownloadURL(imageRef);
 
       // Handle thumbnail if available
-      let thumbnailUrl: string | null;
-      let thumbnailPath: string | null;
+      let thumbnailUrl: string | null = null;
+      let thumbnailPath: string | null = null;
 
       if (thumbnail) {
         thumbnailPath = `cakes/${currentUser.id}/${Date.now()}_${i}_thumb_${thumbnail.name}`;
@@ -72,7 +72,6 @@ export async function createCake(
       uploadedImages.push({
         id: imagePath, // Use the storage path as the ID for easy deletion later
         url,
-        isMain,
         thumbnailUrl,
         thumbnailPath,
       });
@@ -188,7 +187,6 @@ export async function updateCake(
         uploadedImages.push({
           id: imagePath,
           url,
-          isMain: false, // New images are not main by default
           thumbnailUrl,
           thumbnailPath,
         });

@@ -41,7 +41,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       try {
         const userData = {
           email,
-          displayName: displayName || "Cake Baker",
+          displayName: displayName,
           emojiAvatar: randomEmoji,
           photoURL: photoURL || null,
           createdAt,
@@ -56,9 +56,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         return {
           id: firebaseUser.uid,
           email,
-          displayName: displayName || "Cake Baker",
+          displayName: displayName,
           emojiAvatar: randomEmoji,
-          photoURL: photoURL || undefined,
+          photoURL: photoURL || null,
           createdAt,
           cakeIds: []
         };
@@ -138,6 +138,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         email,
         displayName,
         emojiAvatar: emoji,
+        photoURL: null,
         createdAt: new Date(),
         cakeIds: []
       });
