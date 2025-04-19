@@ -32,7 +32,10 @@ export async function createCake(
   currentUser: User,
 ): Promise<string> {
   try {
-    // First, upload all images to Firebase Storage
+    const cakeRef = doc(cakesCollection);
+    const newCakeId = cakeRef.id;
+
+    // Upload all images to Firebase Storage
     const uploadedImages: CakeImage[] = [];
 
     for (let i = 0; i < images.length; i++) {
@@ -43,7 +46,7 @@ export async function createCake(
       const {mainImage, thumbnail} = await processImage(image);
 
       // Create a unique path for each image
-      const imagePath = `cakes/${currentUser.id}/${Date.now()}_${i}_${mainImage.name}`;
+      const imagePath = `cakes/${newCakeId}/${Date.now()}_${mainImage.name}`;
       const imageRef = ref(storage, imagePath);
 
       // Upload the main image
@@ -75,12 +78,8 @@ export async function createCake(
       });
     }
 
-    // Now, create the cake document in Firestore
-    const cakeRef = doc(cakesCollection);
-    const {id} = cakeRef;
-
     const cakeData: Cake = {
-      id,
+      id: newCakeId,
       title,
       description: description || "", // Default to empty string if no description
       userId: currentUser.id,
@@ -94,7 +93,7 @@ export async function createCake(
 
     await addDoc(collection(firestore, "cakes"), cakeData);
 
-    return id;
+    return newCakeId;
   } catch (error) {
     console.error("Error creating cake:", error);
     throw new Error("Failed to create cake. Please try again.");
@@ -167,7 +166,7 @@ export async function updateCake(
         // Process image to webp format
         const {mainImage, thumbnail} = await processImage(image);
 
-        const imagePath = `cakes/${cakeDoc.data().userId}/${Date.now()}_${i}_${mainImage.name}`;
+        const imagePath = `cakes/${cakeDoc.data().id}/${Date.now()}_${mainImage.name}`;
         const imageRef = ref(storage, imagePath);
 
         await uploadBytes(imageRef, mainImage);
