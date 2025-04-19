@@ -1,22 +1,13 @@
-import React, {useState} from "react";
-import {User} from "@/types/auth";
-import {Button} from "@/components/ui/button";
-import {Input} from "@/components/ui/input";
+import React, { useState } from "react";
+import { User } from "@/types/auth";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import EmojiPicker from "@/components/EmojiPicker";
-import {useNavigate} from "react-router-dom";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import {useAuth} from "@/contexts/AuthContext.tsx";
-import {format} from "date-fns";
+import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import LanguageSelector from "./LanguageSelector";
+import { useAuth } from "@/contexts/AuthContext";
+import { format } from "date-fns";
 
 interface UserProfileCardProps {
   user: User;
@@ -25,12 +16,13 @@ interface UserProfileCardProps {
 }
 
 const UserProfileCard: React.FC<UserProfileCardProps> = ({
-                                                           user,
-                                                           onAvatarChange,
-                                                           onSignOut,
-                                                         }) => {
+  user,
+  onAvatarChange,
+  onSignOut,
+}) => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
-  const {updateDisplayName, deleteAccount} = useAuth();
+  const { updateDisplayName, deleteAccount } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [newDisplayName, setNewDisplayName] = useState(user.displayName);
 
@@ -99,6 +91,8 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
             </span>
           </div>
         </div>
+
+        <LanguageSelector />
       </div>
 
       <div className="mt-6 space-y-2">
@@ -152,4 +146,3 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
 };
 
 export default UserProfileCard;
-
