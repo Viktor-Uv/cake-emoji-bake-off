@@ -174,8 +174,8 @@ export async function updateCake(
         const url = await getDownloadURL(imageRef);
 
         // Handle thumbnail if available
-        let thumbnailUrl: string | undefined;
-        let thumbnailPath: string | undefined;
+        let thumbnailUrl: string | null;
+        let thumbnailPath: string | null;
 
         if (thumbnail) {
           thumbnailPath = `cakes/${cakeDoc.data().userId}/${Date.now()}_${i}_thumb_${thumbnail.name}`;
