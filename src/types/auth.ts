@@ -17,5 +17,7 @@ export interface AuthContextType {
   signUp: (email: string, password: string, displayName: string, emoji: string) => Promise<void>;
   signOut: () => Promise<void>;
   updateUserAvatar: (emoji: string) => Promise<boolean>;
+  updateDisplayName: (newName: string) => Promise<boolean>;
+  deleteAccount: () => Promise<void>;
   error: string | null;
 }

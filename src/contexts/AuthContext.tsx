@@ -6,8 +6,9 @@ import {
   signOut as firebaseSignOut,
   onAuthStateChanged,
   updateProfile,
+  deleteUser
 } from "firebase/auth";
-import { doc, setDoc, getDoc, updateDoc } from "firebase/firestore";
+import { doc, setDoc, getDoc, updateDoc, deleteDoc, collection, query, where, getDocs } from "firebase/firestore";
 import { auth, firestore, googleProvider } from "@/lib/firebase";
 import { AuthContextType, User } from "@/types/auth";
 import { toast } from "@/components/ui/sonner";
@@ -15,10 +16,8 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { EMOJI_OPTIONS } from "@/constants/emoji-constants";
 import { useNavigate } from "react-router-dom";
 
-// Create the auth context
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Provider component
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
@@ -26,7 +25,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const isMobile = useIsMobile();
   const navigate = useNavigate();
 
-  // Helper function to create user document
   const createUserDocument = async (firebaseUser: any, additionalData = {}) => {
     if (!firebaseUser) return null;
     
@@ -49,7 +47,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           ...additionalData
         };
         
-        // Explicitly set the document with the user data
         await setDoc(userRef, userData);
         
         console.log("User document created successfully!");
@@ -68,7 +65,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         return null;
       }
     } else {
-      // Document exists, return data
       const userData = userSnap.data();
       return {
         id: firebaseUser.uid,
@@ -114,12 +110,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       
       const result = await createUserWithEmailAndPassword(auth, email, password);
       
-      // Update the user profile in Firebase Auth
       await updateProfile(result.user, {
         displayName: displayName
       });
       
-      // Create user document with custom data
       const userData = {
         displayName, 
         email, 
@@ -128,11 +122,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         cakeIds: []
       };
       
-      // Explicitly create the user document in Firestore
       const userRef = doc(firestore, "users", result.user.uid);
       await setDoc(userRef, userData);
       
-      // Set the user state with the new data
       setUser({
         id: result.user.uid,
         email,
@@ -176,7 +168,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       setError(null);
       const result = await signInWithPopup(auth, googleProvider);
       
-      // Create user document if not exists
       await createUserDocument(result.user);
       
       toast.success("Signed in with Google successfully!");
@@ -222,6 +213,53 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
+  const updateDisplayName = async (newName: string) => {
+    if (!user || !auth.currentUser) return false;
+    
+    try {
+      await updateProfile(auth.currentUser, {
+        displayName: newName
+      });
+      
+      const userRef = doc(firestore, "users", user.id);
+      await updateDoc(userRef, { displayName: newName });
+      
+      setUser({
+        ...user,
+        displayName: newName
+      });
+      
+      toast.success("Display name updated successfully!");
+      return true;
+    } catch (err) {
+      console.error("Error updating display name:", err);
+      toast.error("Failed to update display name. Please try again.");
+      return false;
+    }
+  };
+
+  const deleteAccount = async () => {
+    if (!user || !auth.currentUser) return;
+    
+    try {
+      const cakesQuery = query(collection(firestore, "cakes"), where("userId", "==", user.id));
+      const cakesSnapshot = await getDocs(cakesQuery);
+      
+      const deletionPromises = cakesSnapshot.docs.map(doc => deleteDoc(doc.ref));
+      await Promise.all(deletionPromises);
+      
+      await deleteDoc(doc(firestore, "users", user.id));
+      
+      await deleteUser(auth.currentUser);
+      
+      toast.success("Account deleted successfully.");
+      navigate('/');
+    } catch (err) {
+      console.error("Error deleting account:", err);
+      toast.error("Failed to delete account. Please try again.");
+    }
+  };
+
   const value = {
     user,
     loading,
@@ -230,6 +268,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     signUp,
     signOut,
     updateUserAvatar,
+    updateDisplayName,
+    deleteAccount,
     error
   };
 
