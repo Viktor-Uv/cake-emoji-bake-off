@@ -1,10 +1,9 @@
-
-import React, { useState } from "react";
-import { User } from "@/types/auth";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import React, {useState} from "react";
+import {User} from "@/types/auth";
+import {Button} from "@/components/ui/button";
+import {Input} from "@/components/ui/input";
 import EmojiPicker from "@/components/EmojiPicker";
-import { useNavigate } from "react-router-dom";
+import {useNavigate} from "react-router-dom";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -16,6 +15,8 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import {useAuth} from "@/contexts/AuthContext.tsx";
+import {format} from "date-fns";
 
 interface UserProfileCardProps {
   user: User;
@@ -24,17 +25,17 @@ interface UserProfileCardProps {
 }
 
 const UserProfileCard: React.FC<UserProfileCardProps> = ({
-  user,
-  onAvatarChange,
-  onSignOut,
-}) => {
+                                                           user,
+                                                           onAvatarChange,
+                                                           onSignOut,
+                                                         }) => {
   const navigate = useNavigate();
-  const { updateDisplayName, deleteAccount } = useAuth();
+  const {updateDisplayName, deleteAccount} = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [newDisplayName, setNewDisplayName] = useState(user.displayName);
 
   const handleUpdateDisplayName = async () => {
-    if (newDisplayName.trim() === '') return;
+    if (newDisplayName.trim() === "") return;
     const success = await updateDisplayName(newDisplayName.trim());
     if (success) {
       setIsEditing(false);
@@ -62,9 +63,9 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
           ) : (
             <>
               <h1 className="text-xl font-bold">{user.displayName}</h1>
-              <Button 
-                variant="ghost" 
-                size="sm" 
+              <Button
+                variant="ghost"
+                size="sm"
                 onClick={() => setIsEditing(true)}
               >
                 Edit
@@ -79,19 +80,19 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
           </p>
         )}
       </div>
-      
+
       <div className="space-y-4">
         <div>
           <label className="block text-sm font-medium mb-2">Email</label>
-          <Input value={user.email} disabled />
+          <Input value={user.email} disabled/>
         </div>
-        
+
         <div>
           <label className="block text-sm font-medium mb-2">Emoji Avatar</label>
           <div className="flex items-center gap-4">
-            <EmojiPicker 
-              value={user.emojiAvatar} 
-              onChange={onAvatarChange} 
+            <EmojiPicker
+              value={user.emojiAvatar}
+              onChange={onAvatarChange}
             />
             <span className="text-xs text-gray-500">
               Click to change your avatar
@@ -99,17 +100,17 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
           </div>
         </div>
       </div>
-      
+
       <div className="mt-6 space-y-2">
-        <Button 
+        <Button
           className="w-full"
           onClick={() => navigate("/create")}
         >
           Upload New Cake
         </Button>
-        
-        <Button 
-          variant="outline" 
+
+        <Button
+          variant="outline"
           className="w-full"
           onClick={onSignOut}
         >
@@ -118,8 +119,8 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
 
         <AlertDialog>
           <AlertDialogTrigger asChild>
-            <Button 
-              variant="destructive" 
+            <Button
+              variant="destructive"
               className="w-full"
             >
               Delete Account
