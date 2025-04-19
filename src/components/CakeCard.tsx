@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { format } from "date-fns";
 import { Cake } from "@/types/cake";
@@ -6,21 +7,23 @@ import { Card, CardHeader, CardContent, CardFooter } from "@/components/ui/card"
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import RatingStars from "./RatingStars";
 import { toast } from "@/components/ui/sonner";
-import { rateCake, updateCake } from "@/services/cakeService";
+import { rateCake, updateCake, deleteCake } from "@/services/cakeService";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import ImageUploader from "@/components/ImageUploader";
-import { Pencil } from "lucide-react";
+import { Pencil, Trash2 } from "lucide-react";
 
 interface CakeCardProps {
   cake: Cake;
   onRatingChange?: () => void;
   onCakeUpdate?: () => void;
+  onCakeDelete?: () => void;
 }
 
-const CakeCard: React.FC<CakeCardProps> = ({ cake, onRatingChange, onCakeUpdate }) => {
+const CakeCard: React.FC<CakeCardProps> = ({ cake, onRatingChange, onCakeUpdate, onCakeDelete }) => {
   const { user } = useAuth();
   const [isImageOpen, setIsImageOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -28,10 +31,9 @@ const CakeCard: React.FC<CakeCardProps> = ({ cake, onRatingChange, onCakeUpdate 
   const [editedTitle, setEditedTitle] = useState(cake.title);
   const [editedDescription, setEditedDescription] = useState(cake.description);
   const [selectedImages, setSelectedImages] = useState<File[]>([]);
-  const [mainImageIndex, setMainImageIndex] = useState(0);
-  
-  // Find the main image
-  const mainImage = cake.images.find((img) => img.isMain) || cake.images[0];
+  const [existingImages, setExistingImages] = useState<Array<{id: string, url: string}>>(
+    cake.images.map(img => ({ id: img.id, url: img.url }))
+  );
   
   // Check if the current user has already rated this cake
   const userRating = cake.ratings?.find((r) => r.userId === user?.id)?.rating || 0;
@@ -66,20 +68,42 @@ const CakeCard: React.FC<CakeCardProps> = ({ cake, onRatingChange, onCakeUpdate 
     }
   };
 
+  const handleImagesSelected = (newImages: File[], allOrderedImages: File[]) => {
+    setSelectedImages(allOrderedImages);
+  };
+
+  const handleExistingImagesChange = (updatedImages: Array<{id: string, url: string}>) => {
+    setExistingImages(updatedImages);
+  };
+
   const handleUpdateCake = async () => {
     if (!editedTitle.trim()) {
       toast.error("Title is required");
       return;
     }
     
+    // Check if we have at least one image (either existing or new)
+    if (existingImages.length === 0 && selectedImages.length === 0) {
+      toast.error("At least one image is required");
+      return;
+    }
+
     try {
       setLoading(true);
+      
+      // Convert existing images back to the CakeImage format
+      const formattedExistingImages = existingImages.map((img, index) => ({
+        id: img.id,
+        url: img.url,
+        isMain: index === 0 // First image is main
+      }));
+      
       await updateCake(
         cake.id,
         editedTitle,
         editedDescription,
         selectedImages,
-        mainImageIndex,
+        formattedExistingImages
       );
       
       toast.success("Cake updated successfully!");
@@ -90,6 +114,22 @@ const CakeCard: React.FC<CakeCardProps> = ({ cake, onRatingChange, onCakeUpdate 
     } catch (error) {
       console.error("Error updating cake:", error);
       toast.error("Failed to update cake. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteCake = async () => {
+    try {
+      setLoading(true);
+      await deleteCake(cake.id);
+      toast.success("Cake deleted successfully!");
+      if (onCakeDelete) {
+        onCakeDelete();
+      }
+    } catch (error) {
+      console.error("Error deleting cake:", error);
+      toast.error("Failed to delete cake. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -145,12 +185,13 @@ const CakeCard: React.FC<CakeCardProps> = ({ cake, onRatingChange, onCakeUpdate 
       
       <div>
         <label className="block text-sm font-medium mb-2">
-          Update Photos (Optional)
+          Photos
         </label>
-        <ImageUploader onImagesSelected={(images, mainIndex) => {
-          setSelectedImages(images);
-          setMainImageIndex(mainIndex);
-        }} />
+        <ImageUploader 
+          onImagesSelected={handleImagesSelected}
+          existingImages={existingImages}
+          onExistingImagesChange={handleExistingImagesChange}
+        />
       </div>
       
       <div className="flex gap-2 pt-2">
@@ -163,6 +204,7 @@ const CakeCard: React.FC<CakeCardProps> = ({ cake, onRatingChange, onCakeUpdate 
             setIsEditing(false);
             setEditedTitle(cake.title);
             setEditedDescription(cake.description);
+            setExistingImages(cake.images.map(img => ({ id: img.id, url: img.url })));
           }}
         >
           Cancel
@@ -182,13 +224,40 @@ const CakeCard: React.FC<CakeCardProps> = ({ cake, onRatingChange, onCakeUpdate 
             </div>
             <div className="flex items-center gap-2">
               {isOwnCake && !isEditing && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setIsEditing(true)}
-                >
-                  <Pencil className="h-4 w-4" />
-                </Button>
+                <>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setIsEditing(true)}
+                  >
+                    <Pencil className="h-4 w-4" />
+                  </Button>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="text-destructive hover:text-destructive"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Delete Cake</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Are you sure you want to delete this cake? This action cannot be undone.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleDeleteCake}>
+                          Delete
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </>
               )}
               <span className="text-xs text-gray-500">
                 {formatDate(cake.createdAt)}
@@ -199,15 +268,28 @@ const CakeCard: React.FC<CakeCardProps> = ({ cake, onRatingChange, onCakeUpdate 
         
         {!isEditing ? (
           <>
-            <div 
-              className="h-64 w-full overflow-hidden cursor-pointer"
-              onClick={() => setIsImageOpen(true)}
-            >
-              <img 
-                src={mainImage.url} 
-                alt={cake.title} 
-                className="w-full h-full object-cover transition-transform hover:scale-105"
-              />
+            <div className="px-4 relative">
+              <Carousel className="w-full cursor-pointer" onClick={() => setIsImageOpen(true)}>
+                <CarouselContent>
+                  {cake.images.map((image, index) => (
+                    <CarouselItem key={image.id}>
+                      <div className="h-64 w-full overflow-hidden">
+                        <img 
+                          src={image.url} 
+                          alt={`${cake.title} - ${index + 1}`} 
+                          className="w-full h-full object-cover transition-transform hover:scale-105"
+                        />
+                      </div>
+                    </CarouselItem>
+                  ))}
+                </CarouselContent>
+                {cake.images.length > 1 && (
+                  <>
+                    <CarouselPrevious className="absolute left-2 top-1/2" />
+                    <CarouselNext className="absolute right-2 top-1/2" />
+                  </>
+                )}
+              </Carousel>
             </div>
             
             <CardContent className="pt-4">
@@ -241,14 +323,6 @@ const CakeCard: React.FC<CakeCardProps> = ({ cake, onRatingChange, onCakeUpdate 
                   />
                 </div>
               )}
-              
-              <Button 
-                variant="outline" 
-                className="w-full mt-2"
-                onClick={() => setIsImageOpen(true)}
-              >
-                View All Photos ({cake.images.length})
-              </Button>
             </CardFooter>
           </>
         ) : (

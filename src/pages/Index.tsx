@@ -33,6 +33,14 @@ const Index: React.FC = () => {
   const handleRatingChange = () => {
     fetchCakes();
   };
+  
+  const handleCakeUpdate = () => {
+    fetchCakes();
+  };
+  
+  const handleCakeDelete = (cakeId: string) => {
+    setCakes(cakes.filter(cake => cake.id !== cakeId));
+  };
 
   if (loading) {
     return (
@@ -69,7 +77,13 @@ const Index: React.FC = () => {
       <h2 className="text-2xl font-bold mb-6">Latest Cake Creations</h2>
       <div>
         {cakes.map((cake) => (
-          <CakeCard key={cake.id} cake={cake} onRatingChange={handleRatingChange} />
+          <CakeCard 
+            key={cake.id} 
+            cake={cake} 
+            onRatingChange={handleRatingChange} 
+            onCakeUpdate={handleCakeUpdate}
+            onCakeDelete={() => handleCakeDelete(cake.id)}
+          />
         ))}
       </div>
     </div>

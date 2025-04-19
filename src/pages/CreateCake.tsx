@@ -32,7 +32,6 @@ const CreateCake: React.FC = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [selectedImages, setSelectedImages] = useState<File[]>([]);
-  const [mainImageIndex, setMainImageIndex] = useState<number>(0);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -42,9 +41,8 @@ const CreateCake: React.FC = () => {
     },
   });
 
-  const handleImagesSelected = (images: File[], mainIndex: number) => {
-    setSelectedImages(images);
-    setMainImageIndex(mainIndex);
+  const handleImagesSelected = (_: File[], orderedImages: File[]) => {
+    setSelectedImages(orderedImages);
   };
 
   const onSubmit = async (values: FormValues) => {
@@ -62,12 +60,12 @@ const CreateCake: React.FC = () => {
     try {
       setLoading(true);
       
-      // Create the cake
+      // Create the cake - the first image in the array is now the main one
       await createCake(
         values.title,
         values.description,
         selectedImages,
-        mainImageIndex,
+        0, // The first image is always the main one now
         user
       );
       

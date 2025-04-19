@@ -83,7 +83,7 @@ export async function updateCake(
   title: string,
   description: string | undefined,
   newImages?: File[],
-  mainImageIndex?: number,
+  existingImages?: CakeImage[],
 ): Promise<void> {
   try {
     const cakeRef = doc(firestore, "cakes", cakeId);
@@ -98,21 +98,41 @@ export async function updateCake(
       description: description || "", // Default to empty string if no description
     };
     
+    // Get all current images from the document
+    const currentImages = cakeDoc.data().images || [];
+    
+    // First, handle existing images
+    let imagesToKeep: CakeImage[] = [];
+    
+    if (existingImages && existingImages.length > 0) {
+      // Find images to delete (images in currentImages but not in existingImages)
+      const existingImageIds = existingImages.map(img => img.id);
+      const imagesToDelete = currentImages.filter(
+        (img: CakeImage) => !existingImageIds.includes(img.id)
+      );
+      
+      // Delete those images from storage
+      for (const image of imagesToDelete) {
+        const imageRef = ref(storage, image.id);
+        try {
+          await deleteObject(imageRef);
+        } catch (error) {
+          console.error("Error deleting image:", image.id, error);
+          // Continue even if image deletion fails
+        }
+      }
+      
+      // Keep the images with their updated order and main status
+      imagesToKeep = existingImages;
+    }
+    
     // If new images were provided, handle them
     if (newImages && newImages.length > 0) {
       const uploadedImages: CakeImage[] = [];
       
-      // First, delete all existing images from storage
-      const existingImages = cakeDoc.data().images || [];
-      for (const image of existingImages) {
-        const imageRef = ref(storage, image.id);
-        await deleteObject(imageRef);
-      }
-      
       // Upload new images
       for (let i = 0; i < newImages.length; i++) {
         const image = newImages[i];
-        const isMain = i === (mainImageIndex || 0);
         
         const imagePath = `cakes/${cakeDoc.data().userId}/${Date.now()}_${i}_${image.name}`;
         const imageRef = ref(storage, imagePath);
@@ -123,11 +143,23 @@ export async function updateCake(
         uploadedImages.push({
           id: imagePath,
           url,
-          isMain
+          isMain: false // New images are not main by default
         });
       }
       
-      updateData.images = uploadedImages;
+      // Combine existing and new images
+      updateData.images = [...imagesToKeep, ...uploadedImages];
+    } else {
+      // If no new images, just use the existing ones
+      updateData.images = imagesToKeep;
+    }
+    
+    // Ensure the first image is marked as main
+    if (updateData.images && updateData.images.length > 0) {
+      updateData.images = updateData.images.map((img: CakeImage, index: number) => ({
+        ...img,
+        isMain: index === 0 // First image is main
+      }));
     }
     
     await updateDoc(cakeRef, updateData);
@@ -269,7 +301,12 @@ export async function deleteCake(cakeId: string): Promise<void> {
     // Delete all images from Firebase Storage
     for (const image of images) {
       const imageRef = ref(storage, image.id);
-      await deleteObject(imageRef);
+      try {
+        await deleteObject(imageRef);
+      } catch (error) {
+        console.error("Error deleting image:", error);
+        // Continue deletion even if an image fails
+      }
     }
     
     // Delete the cake document from Firestore

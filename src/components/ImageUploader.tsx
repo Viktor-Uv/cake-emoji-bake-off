@@ -1,22 +1,32 @@
 
 import React, { useState, useRef, ChangeEvent } from "react";
-import { X } from "lucide-react";
+import { Upload, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/sonner";
+import DraggableImageGallery from "./DraggableImageGallery";
 
 interface ImageUploaderProps {
-  onImagesSelected: (images: File[], mainImageIndex: number) => void;
+  onImagesSelected: (images: File[], orderedImages: File[]) => void;
   maxImages?: number;
+  existingImages?: Array<{id: string, url: string}>;
+  onExistingImagesChange?: (images: Array<{id: string, url: string}>) => void;
 }
 
 const ImageUploader: React.FC<ImageUploaderProps> = ({
   onImagesSelected,
   maxImages = 5,
+  existingImages = [],
+  onExistingImagesChange
 }) => {
-  const [selectedImages, setSelectedImages] = useState<File[]>([]);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
-  const [mainImageIndex, setMainImageIndex] = useState<number>(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  // Format preview images as needed for DraggableImageGallery
+  const previewImages = previewUrls.map((url, index) => ({
+    id: `new-${index}`,
+    url
+  }));
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
@@ -24,7 +34,8 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
     if (!files.length) return;
     
     // Check if adding these images would exceed the maximum
-    if (selectedImages.length + files.length > maxImages) {
+    const totalImagesCount = selectedFiles.length + existingImages.length + files.length;
+    if (totalImagesCount > maxImages) {
       toast.error(`You can upload a maximum of ${maxImages} images`);
       return;
     }
@@ -41,19 +52,12 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
     // Create preview URLs
     const newPreviewUrls = validFiles.map(file => URL.createObjectURL(file));
     
-    setSelectedImages([...selectedImages, ...validFiles]);
+    const newSelectedFiles = [...selectedFiles, ...validFiles];
+    setSelectedFiles(newSelectedFiles);
     setPreviewUrls([...previewUrls, ...newPreviewUrls]);
     
-    // If this is the first image, set it as the main image
-    if (selectedImages.length === 0 && validFiles.length > 0) {
-      setMainImageIndex(0);
-      
-      // Notify parent component of selection
-      onImagesSelected([...validFiles], 0);
-    } else {
-      // Notify parent component of selection
-      onImagesSelected([...selectedImages, ...validFiles], mainImageIndex);
-    }
+    // Notify parent component of selection
+    onImagesSelected(validFiles, newSelectedFiles);
     
     // Reset the file input
     if (fileInputRef.current) {
@@ -61,95 +65,91 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
     }
   };
 
-  const removeImage = (index: number) => {
-    // Create new arrays without the removed image
-    const newImages = [...selectedImages];
-    const newPreviewUrls = [...previewUrls];
+  const handleReorderNewImages = (newOrder: Array<{url: string, id: string}>) => {
+    // Create new arrays with reordered images
+    const newPreviewUrls: string[] = [];
+    const newSelectedFiles: File[] = [];
     
-    // Release the object URL to free memory
-    URL.revokeObjectURL(previewUrls[index]);
+    newOrder.forEach(item => {
+      // Extract the index from the "new-X" id
+      const idParts = item.id.split('-');
+      if (idParts[0] === 'new') {
+        const index = parseInt(idParts[1]);
+        newPreviewUrls.push(previewUrls[index]);
+        newSelectedFiles.push(selectedFiles[index]);
+      }
+    });
     
-    newImages.splice(index, 1);
-    newPreviewUrls.splice(index, 1);
-    
-    setSelectedImages(newImages);
     setPreviewUrls(newPreviewUrls);
+    setSelectedFiles(newSelectedFiles);
     
-    // Update main image index if needed
-    let newMainIndex = mainImageIndex;
-    if (mainImageIndex === index) {
-      // If the main image was removed, set the first image as main
-      newMainIndex = newImages.length > 0 ? 0 : -1;
-      setMainImageIndex(newMainIndex);
-    } else if (mainImageIndex > index) {
-      // If an image before the main image was removed, adjust the index
-      newMainIndex = mainImageIndex - 1;
-      setMainImageIndex(newMainIndex);
-    }
-    
-    // Notify parent component of the change
-    onImagesSelected(newImages, newMainIndex);
+    // Notify parent component of the reordered images
+    onImagesSelected([], newSelectedFiles);
   };
 
-  const setAsMainImage = (index: number) => {
-    setMainImageIndex(index);
-    
-    // Notify parent component of the change
-    onImagesSelected(selectedImages, index);
+  const handleDeleteNewImage = (imageId: string) => {
+    // Extract the index from the "new-X" id
+    const idParts = imageId.split('-');
+    if (idParts[0] === 'new') {
+      const index = parseInt(idParts[1]);
+      
+      // Release the object URL to free memory
+      URL.revokeObjectURL(previewUrls[index]);
+      
+      const newPreviewUrls = previewUrls.filter((_, i) => i !== index);
+      const newSelectedFiles = selectedFiles.filter((_, i) => i !== index);
+      
+      setPreviewUrls(newPreviewUrls);
+      setSelectedFiles(newSelectedFiles);
+      
+      // Notify parent component of the change
+      onImagesSelected([], newSelectedFiles);
+    }
   };
+
+  const handleReorderExistingImages = (newOrder: Array<{url: string, id: string}>) => {
+    if (onExistingImagesChange) {
+      onExistingImagesChange(newOrder);
+    }
+  };
+
+  const handleDeleteExistingImage = (imageId: string) => {
+    if (onExistingImagesChange && existingImages) {
+      const newExistingImages = existingImages.filter(img => img.id !== imageId);
+      onExistingImagesChange(newExistingImages);
+    }
+  };
+  
+  const totalImagesCount = selectedFiles.length + existingImages.length;
 
   return (
-    <div className="space-y-4">
-      {/* Preview area */}
+    <div className="space-y-6">
+      {existingImages && existingImages.length > 0 && (
+        <div>
+          <h3 className="text-sm font-medium mb-2">Current Images (Drag to reorder)</h3>
+          <DraggableImageGallery
+            images={existingImages}
+            onReorder={handleReorderExistingImages}
+            onDelete={handleDeleteExistingImage}
+            minImages={selectedFiles.length > 0 ? 0 : 1} // Allow deleting all existing if new images are selected
+          />
+        </div>
+      )}
+      
       {previewUrls.length > 0 && (
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mt-4">
-          {previewUrls.map((url, index) => (
-            <div 
-              key={url} 
-              className={`relative rounded-lg overflow-hidden border-2 ${
-                index === mainImageIndex 
-                  ? 'border-primary ring-2 ring-primary' 
-                  : 'border-gray-200'
-              }`}
-            >
-              <img 
-                src={url} 
-                alt={`Preview ${index + 1}`} 
-                className="w-full h-32 object-cover"
-              />
-              
-              <div className="absolute top-0 right-0 p-1 flex gap-1">
-                <button
-                  type="button"
-                  onClick={() => removeImage(index)}
-                  className="bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-              
-              {index !== mainImageIndex && (
-                <button
-                  type="button"
-                  onClick={() => setAsMainImage(index)}
-                  className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white p-1 text-xs"
-                >
-                  Set as main photo
-                </button>
-              )}
-              
-              {index === mainImageIndex && (
-                <div className="absolute bottom-0 left-0 right-0 bg-primary bg-opacity-70 text-white p-1 text-xs text-center">
-                  Main Photo
-                </div>
-              )}
-            </div>
-          ))}
+        <div>
+          <h3 className="text-sm font-medium mb-2">New Images (Drag to reorder)</h3>
+          <DraggableImageGallery
+            images={previewImages}
+            onReorder={handleReorderNewImages}
+            onDelete={handleDeleteNewImage}
+            minImages={existingImages.length > 0 ? 0 : 1} // Allow deleting all new if existing images exist
+          />
         </div>
       )}
       
       {/* Upload button */}
-      {selectedImages.length < maxImages && (
+      {totalImagesCount < maxImages && (
         <div className="flex items-center justify-center">
           <input
             type="file"
@@ -166,14 +166,15 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
             onClick={() => fileInputRef.current?.click()}
             className="w-full"
           >
-            {selectedImages.length === 0 ? 'Upload Images' : 'Add More Images'}
+            <Upload className="mr-2 h-4 w-4" />
+            {totalImagesCount === 0 ? 'Upload Images' : 'Add More Images'}
           </Button>
         </div>
       )}
       
       <p className="text-sm text-gray-500 text-center">
-        {selectedImages.length} / {maxImages} images
-        {selectedImages.length > 0 && " (click to set main image)"}
+        {totalImagesCount} / {maxImages} images
+        {totalImagesCount > 0 && " (drag to reorder)"}
       </p>
     </div>
   );
