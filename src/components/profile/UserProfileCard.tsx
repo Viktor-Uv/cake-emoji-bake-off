@@ -75,7 +75,7 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
         <p className="text-gray-600 text-sm">{user.email}</p>
         {user.createdAt && (
           <p className="text-gray-500 text-xs mt-1">
-            Member since {new Date(user.createdAt).toLocaleDateString()}
+            Member since {format(user.createdAt.toDate(), "MMM d, yyyy")}
           </p>
         )}
       </div>
