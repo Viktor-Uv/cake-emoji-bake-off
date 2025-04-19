@@ -6,7 +6,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Card, CardHeader, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
+import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import RatingStars from "./RatingStars";
 import { toast } from "@/components/ui/sonner";
@@ -34,6 +34,7 @@ const CakeCard: React.FC<CakeCardProps> = ({ cake, onRatingChange, onCakeUpdate,
   const [existingImages, setExistingImages] = useState<Array<{id: string, url: string}>>(
     cake.images.map(img => ({ id: img.id, url: img.url }))
   );
+  const [activeIndex, setActiveIndex] = useState(0);
   
   // Check if the current user has already rated this cake
   const userRating = cake.ratings?.find((r) => r.userId === user?.id)?.rating || 0;
@@ -138,18 +139,14 @@ const CakeCard: React.FC<CakeCardProps> = ({ cake, onRatingChange, onCakeUpdate,
   // Safely format the date, handling potential invalid date values
   const formatDate = (dateValue: any): string => {
     try {
-      // Check if dateValue is a valid date
       if (!dateValue) return "Unknown date";
       
-      // If it's a timestamp from Firestore with toDate method
       if (dateValue && typeof dateValue.toDate === 'function') {
         return format(dateValue.toDate(), "MMM d, yyyy");
       }
       
-      // For regular Date objects or timestamp converted to Date
       const date = dateValue instanceof Date ? dateValue : new Date(dateValue);
       
-      // Validate the date is not invalid
       if (isNaN(date.getTime())) {
         return "Unknown date";
       }
@@ -269,7 +266,14 @@ const CakeCard: React.FC<CakeCardProps> = ({ cake, onRatingChange, onCakeUpdate,
         {!isEditing ? (
           <>
             <div className="px-4 relative">
-              <Carousel className="w-full cursor-pointer" onClick={() => setIsImageOpen(true)}>
+              <Carousel className="w-full cursor-pointer" 
+                onClick={() => setIsImageOpen(true)}
+                setApi={(api) => {
+                  api?.on("select", () => {
+                    setActiveIndex(api.selectedScrollSnap());
+                  });
+                }}
+              >
                 <CarouselContent>
                   {cake.images.map((image, index) => (
                     <CarouselItem key={image.id}>
@@ -283,11 +287,19 @@ const CakeCard: React.FC<CakeCardProps> = ({ cake, onRatingChange, onCakeUpdate,
                     </CarouselItem>
                   ))}
                 </CarouselContent>
+                
+                {/* Instagram-style dots indicator */}
                 {cake.images.length > 1 && (
-                  <>
-                    <CarouselPrevious className="absolute left-2 top-1/2" />
-                    <CarouselNext className="absolute right-2 top-1/2" />
-                  </>
+                  <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-1.5">
+                    {cake.images.map((_, index) => (
+                      <div 
+                        key={index} 
+                        className={`w-2 h-2 rounded-full ${
+                          index === activeIndex ? 'bg-white' : 'bg-white/50'
+                        }`}
+                      />
+                    ))}
+                  </div>
                 )}
               </Carousel>
             </div>
@@ -337,7 +349,11 @@ const CakeCard: React.FC<CakeCardProps> = ({ cake, onRatingChange, onCakeUpdate,
             <DialogTitle>{cake.title}</DialogTitle>
           </DialogHeader>
           
-          <Carousel className="w-full">
+          <Carousel className="w-full"
+            setApi={(api) => {
+              api?.scrollTo(activeIndex);
+            }}
+          >
             <CarouselContent>
               {cake.images.map((image, index) => (
                 <CarouselItem key={image.id}>
@@ -351,8 +367,20 @@ const CakeCard: React.FC<CakeCardProps> = ({ cake, onRatingChange, onCakeUpdate,
                 </CarouselItem>
               ))}
             </CarouselContent>
-            <CarouselPrevious />
-            <CarouselNext />
+            
+            {/* Instagram-style dots for fullscreen view */}
+            {cake.images.length > 1 && (
+              <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-1.5">
+                {cake.images.map((_, index) => (
+                  <div 
+                    key={index} 
+                    className={`w-2 h-2 rounded-full ${
+                      index === activeIndex ? 'bg-primary' : 'bg-gray-300'
+                    }`}
+                  />
+                ))}
+              </div>
+            )}
           </Carousel>
         </DialogContent>
       </Dialog>

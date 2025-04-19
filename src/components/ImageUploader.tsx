@@ -1,6 +1,6 @@
 
 import React, { useState, useRef, ChangeEvent } from "react";
-import { Upload, Trash2 } from "lucide-react";
+import { Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/sonner";
 import DraggableImageGallery from "./DraggableImageGallery";
@@ -22,11 +22,14 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   
-  // Format preview images as needed for DraggableImageGallery
-  const previewImages = previewUrls.map((url, index) => ({
-    id: `new-${index}`,
-    url
-  }));
+  // Create a merged array of all images (existing + new) for display
+  const allImages = [
+    ...existingImages,
+    ...previewUrls.map((url, index) => ({
+      id: `new-${index}`,
+      url
+    }))
+  ];
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
@@ -64,34 +67,44 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
       fileInputRef.current.value = '';
     }
   };
-
-  const handleReorderNewImages = (newOrder: Array<{url: string, id: string}>) => {
-    // Create new arrays with reordered images
+  
+  const handleReorder = (newOrder: Array<{url: string, id: string}>) => {
+    // Split the reordered array back into existing and new images
+    const newExistingImages: Array<{id: string, url: string}> = [];
     const newPreviewUrls: string[] = [];
     const newSelectedFiles: File[] = [];
     
     newOrder.forEach(item => {
-      // Extract the index from the "new-X" id
-      const idParts = item.id.split('-');
-      if (idParts[0] === 'new') {
-        const index = parseInt(idParts[1]);
-        newPreviewUrls.push(previewUrls[index]);
-        newSelectedFiles.push(selectedFiles[index]);
+      if (item.id.startsWith('new-')) {
+        // This is a new image
+        const index = parseInt(item.id.split('-')[1]);
+        if (index >= 0 && index < selectedFiles.length) {
+          newPreviewUrls.push(item.url);
+          newSelectedFiles.push(selectedFiles[index]);
+        }
+      } else {
+        // This is an existing image
+        newExistingImages.push(item);
       }
     });
     
+    // Update existing images if callback provided
+    if (onExistingImagesChange) {
+      onExistingImagesChange(newExistingImages);
+    }
+    
+    // Update new images
     setPreviewUrls(newPreviewUrls);
     setSelectedFiles(newSelectedFiles);
     
-    // Notify parent component of the reordered images
+    // Notify parent component about the changes to new images
     onImagesSelected([], newSelectedFiles);
   };
-
-  const handleDeleteNewImage = (imageId: string) => {
-    // Extract the index from the "new-X" id
-    const idParts = imageId.split('-');
-    if (idParts[0] === 'new') {
-      const index = parseInt(idParts[1]);
+  
+  const handleDelete = (imageId: string) => {
+    if (imageId.startsWith('new-')) {
+      // Delete from new images
+      const index = parseInt(imageId.split('-')[1]);
       
       // Release the object URL to free memory
       URL.revokeObjectURL(previewUrls[index]);
@@ -102,48 +115,28 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
       setPreviewUrls(newPreviewUrls);
       setSelectedFiles(newSelectedFiles);
       
-      // Notify parent component of the change
+      // Notify parent
       onImagesSelected([], newSelectedFiles);
-    }
-  };
-
-  const handleReorderExistingImages = (newOrder: Array<{url: string, id: string}>) => {
-    if (onExistingImagesChange) {
-      onExistingImagesChange(newOrder);
-    }
-  };
-
-  const handleDeleteExistingImage = (imageId: string) => {
-    if (onExistingImagesChange && existingImages) {
+    } else if (onExistingImagesChange) {
+      // Delete from existing images
       const newExistingImages = existingImages.filter(img => img.id !== imageId);
       onExistingImagesChange(newExistingImages);
     }
   };
   
-  const totalImagesCount = selectedFiles.length + existingImages.length;
+  const totalImagesCount = allImages.length;
 
   return (
     <div className="space-y-6">
-      {existingImages && existingImages.length > 0 && (
+      {allImages.length > 0 && (
         <div>
-          <h3 className="text-sm font-medium mb-2">Current Images (Drag to reorder)</h3>
+          <p className="text-sm font-medium mb-2">Images (Drag to reorder)</p>
           <DraggableImageGallery
-            images={existingImages}
-            onReorder={handleReorderExistingImages}
-            onDelete={handleDeleteExistingImage}
-            minImages={selectedFiles.length > 0 ? 0 : 1} // Allow deleting all existing if new images are selected
-          />
-        </div>
-      )}
-      
-      {previewUrls.length > 0 && (
-        <div>
-          <h3 className="text-sm font-medium mb-2">New Images (Drag to reorder)</h3>
-          <DraggableImageGallery
-            images={previewImages}
-            onReorder={handleReorderNewImages}
-            onDelete={handleDeleteNewImage}
-            minImages={existingImages.length > 0 ? 0 : 1} // Allow deleting all new if existing images exist
+            images={allImages}
+            onReorder={handleReorder}
+            onDelete={handleDelete}
+            minImages={1}
+            showDeleteConfirmation={false}
           />
         </div>
       )}
