@@ -102,12 +102,102 @@ const en = {
 };
 
 const ua = {
-  common: {},
-  auth: {},
-  cakes: {},
-  profile: {},
-  notFound: {},
-  layout: {}
+  common: {
+    welcome: "Вітаємо на змаганні з випікання пасок до Великодня!",
+    signIn: "Увійти",
+    signOut: "Вийти",
+    createAccount: "Створити акаунт",
+    delete: "Видалити",
+    cancel: "Скасувати",
+    save: "Зберегти",
+    edit: "Редагувати",
+    loading: "Завантаження...",
+    error: "Помилка",
+    success: "Успіх"
+  },
+  auth: {
+    signInRequired: "Ви повинні увійти в акаунт",
+    signInMessage: "Будь ласка, увійдіть або створіть акаунт, щоб завантажити свої паски.",
+    deleteAccountTitle: "Видалити акаунт",
+    deleteAccountWarning: "Ви впевнені?",
+    deleteAccountDescription: "Цю дію неможливо буде скасувати. Це видалить ваш акаунт і видалить всі ваші дані з нашого сервера, включно з вашими пасками та оцінками.",
+    accountDeleted: "Акаунт видалено успішно.",
+    displayNameUpdated: "Ім’я профілю успішно змінено!",
+    email: "Електронна пошта",
+    password: "Пароль",
+    signInWithEmail: "Увійти з електронною поштою",
+    signInWithGoogle: "Увійти через Google",
+    orContinueWith: "Або продовжити з",
+    noAccount: "Немає акаунту?",
+    register: "Створити",
+    createAccountTitle: "Створити акаунт",
+    createAccountDesc: "Приєднуйтеся до нашого змагання з пасками",
+    displayName: "Ім’я профілю",
+    yourName: "Ваше ім’я",
+    chooseAvatar: "Оберіть аватарку",
+    clickToChangeAvatar: "Натисніть, щоб змінити ваш аватар",
+    createAccountButton: "Створити акаунт",
+    creatingAccount: "Створення акаунту...",
+    hasAccount: "Вже маєте акаунт?",
+    signIn: "Увійти"
+  },
+  cakes: {
+    title: "Назва паски",
+    description: "Опис паски",
+    photos: "Фото паски",
+    titlePlaceholder: "Моя смачна паска",
+    descriptionPlaceholder: "Розкажіть нам про свою паску! Що робить її особливою?",
+    uploadImages: "Завантажити фото",
+    addMoreImages: "Додати ще фото",
+    imagesCount: "{{count}} / {{max}} фото",
+    dragToReorder: "перетягніть для зміни порядку",
+    createError: "Не вдалося створити паску. Будь ласка, спробуйте ще раз.",
+    createSuccess: "Паска успішно створена!",
+    deleteImage: "Видалити фото",
+    rateThis: "Оцінити цю паску:",
+    editCake: "Редагувати паску",
+    deleteCake: "Видалити паску",
+    confirmDelete: "Видалити паску?",
+    deleteWarning: "Ви впевнені, що хочете видалити цю паску? Ця дія неможлива буде скасувати.",
+    saveChanges: "Зберегти зміни",
+    anonymous: "Анонімний пекар",
+    loading: "Завантаження пасок...",
+    viewFullscreen: "Переглянути на весь екран",
+    closeGallery: "Закрити галерею"
+  },
+  profile: {
+    memberSince: "З нами з {{date}}",
+    changeAvatar: "Натисніть, щоб змінити ваш аватар",
+    language: "Мова",
+    english: "Англійська",
+    ukrainian: "Українська",
+    loading: "Завантаження профілю...",
+    welcome: "Вітаємо на змаганні з випікання пасок до Великодня!",
+    signInMessage: "Увійдіть, щоб завантажити та оцінити паски",
+    createAccount: "Створити акаунт",
+    uploadNewCake: "Завантажити нову паску",
+    deleteAccount: "Видалити акаунт",
+    confirmDelete: "Ви впевнені?",
+    deleteWarning: "Це назавжди видалить ваш акаунт і всі ваші дані.",
+    cancel: "Скасувати",
+    confirm: "Підтвердити",
+    yourCakes: "Ваші створені паски",
+    noCakes: "Ще немає пасок!",
+    noCakesDesc: "Ви ще не завантажили жодної паски.",
+    uploadFirst: "Завантажте свою першу паску"
+  },
+  notFound: {
+    title: "404",
+    description: "Ой! Сторінку не знайдено",
+    returnHome: "Повернутися на головну"
+  },
+  layout: {
+    appTitle: "Змагання з випікання пасок",
+    feed: "Лента",
+    topRated: "Топ",
+    addCake: "Додати паску",
+    profile: "Профіль"
+  }
 };
 
 i18next
