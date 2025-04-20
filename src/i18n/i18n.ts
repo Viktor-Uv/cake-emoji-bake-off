@@ -1,4 +1,3 @@
-
 import i18next from "i18next";
 import { initReactI18next } from "react-i18next";
 import LanguageDetector from "i18next-browser-languagedetector";
@@ -47,14 +46,27 @@ const en = {
     english: "English",
     ukrainian: "Ukrainian",
   },
+  notFound: {
+    title: "404",
+    description: "Oops! Page not found",
+    returnHome: "Return to Home"
+  },
+  layout: {
+    appTitle: "Easter Cake Bake-Off",
+    feed: "Feed",
+    topRated: "Top Rated",
+    addCake: "Add Cake",
+    profile: "Profile"
+  }
 };
 
-// Ukrainian translations will be added later, for now use English as fallback
 const ua = {
   common: {},
   auth: {},
   cakes: {},
   profile: {},
+  notFound: {},
+  layout: {}
 };
 
 i18next

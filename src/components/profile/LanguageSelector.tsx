@@ -7,11 +7,15 @@ import { Label } from "@/components/ui/label";
 const LanguageSelector = () => {
   const { t, i18n } = useTranslation();
 
+  // Get the current language when the component mounts
+  const currentLanguage = i18n.language.split("-")[0];  // Handle cases like 'en-US'
+
   return (
     <div className="space-y-2">
       <Label>{t("profile.language")}</Label>
       <Select
-        value={i18n.language}
+        defaultValue={currentLanguage}
+        value={currentLanguage}
         onValueChange={(value) => i18n.changeLanguage(value)}
       >
         <SelectTrigger>

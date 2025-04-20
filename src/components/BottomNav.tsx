@@ -2,10 +2,12 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
 import { Home, Star, User, PlusCircle } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "@/contexts/AuthContext";
 
 const BottomNav: React.FC = () => {
   const { user } = useAuth();
+  const { t } = useTranslation();
 
   return (
     <nav className="fixed bottom-0 w-full bg-white shadow-lg rounded-t-xl border-t z-20">
@@ -19,7 +21,7 @@ const BottomNav: React.FC = () => {
           }
         >
           <Home className="w-6 h-6" />
-          <span className="text-xs">Feed</span>
+          <span className="text-xs">{t("layout.feed")}</span>
         </NavLink>
 
         <NavLink
@@ -31,7 +33,7 @@ const BottomNav: React.FC = () => {
           }
         >
           <Star className="w-6 h-6" />
-          <span className="text-xs">Top Rated</span>
+          <span className="text-xs">{t("layout.topRated")}</span>
         </NavLink>
 
         {user && (
@@ -44,7 +46,7 @@ const BottomNav: React.FC = () => {
             }
           >
             <PlusCircle className="w-6 h-6" />
-            <span className="text-xs">Add Cake</span>
+            <span className="text-xs">{t("layout.addCake")}</span>
           </NavLink>
         )}
 
@@ -61,7 +63,7 @@ const BottomNav: React.FC = () => {
           ) : (
             <User className="w-6 h-6" />
           )}
-          <span className="text-xs">Profile</span>
+          <span className="text-xs">{t("layout.profile")}</span>
         </NavLink>
       </div>
     </nav>
