@@ -34,7 +34,9 @@ const CakeCard: React.FC<CakeCardProps> = ({ cake, onRatingChange, onCakeUpdate,
   const [selectedImages, setSelectedImages] = useState<File[]>([]);
   const [existingImages, setExistingImages] = useState<Array<CakeImage>>(cake.images);
   const [activeIndex, setActiveIndex] = useState(0);
-  
+  const [previewUrls, setPreviewUrls] = useState<string[]>([]);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+
   const userRating = cake.ratings?.find((r) => r.userId === user?.id)?.rating || 0;
   const isOwnCake = user?.id === cake.userId;
   
@@ -128,6 +130,25 @@ const CakeCard: React.FC<CakeCardProps> = ({ cake, onRatingChange, onCakeUpdate,
       toast.error("Failed to delete cake. Please try again.");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDelete = (imageId: string) => {
+    if (imageId.startsWith('new-')) {
+      const index = parseInt(imageId.split('-')[1]);
+      
+      URL.revokeObjectURL(previewUrls[index]);
+      
+      const newPreviewUrls = previewUrls.filter((_, i) => i !== index);
+      const newSelectedFiles = selectedFiles.filter((_, i) => i !== index);
+      
+      setPreviewUrls(newPreviewUrls);
+      setSelectedFiles(newSelectedFiles);
+      
+      onImagesSelected([], newSelectedFiles);
+    } else if (onExistingImagesChange) {
+      const newExistingImages = existingImages.filter(img => img.id !== imageId);
+      onExistingImagesChange(newExistingImages);
     }
   };
 
