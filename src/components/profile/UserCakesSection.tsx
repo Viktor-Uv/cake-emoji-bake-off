@@ -12,6 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {useTranslation} from "react-i18next";
 
 export type SortOption = "date-desc" | "date-asc" | "rating-desc";
 
@@ -28,6 +29,7 @@ const UserCakesSection: React.FC<UserCakesSectionProps> = ({
   onSortChange,
   isLoading,
 }) => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   if (isLoading) {
@@ -42,7 +44,7 @@ const UserCakesSection: React.FC<UserCakesSectionProps> = ({
   return (
     <div className="bg-white rounded-lg shadow-md p-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
-        <h2 className="text-xl font-bold mb-2 sm:mb-0">Your Cake Creations</h2>
+        <h2 className="text-xl font-bold mb-2 sm:mb-0">{t("profile.yourCakes")}</h2>
         
         <div className="w-full sm:w-auto">
           <Select
@@ -56,19 +58,19 @@ const UserCakesSection: React.FC<UserCakesSectionProps> = ({
               <SelectItem value="date-desc">
                 <div className="flex items-center gap-2">
                   <CalendarRange className="h-4 w-4" />
-                  <span>Newest First</span>
+                  <span>{t("common.sortNewestFirst")}</span>
                 </div>
               </SelectItem>
               <SelectItem value="date-asc">
                 <div className="flex items-center gap-2">
                   <CalendarRange className="h-4 w-4" />
-                  <span>Oldest First</span>
+                  <span>{t("common.sortOldestFirst")}</span>
                 </div>
               </SelectItem>
               <SelectItem value="rating-desc">
                 <div className="flex items-center gap-2">
                   <Star className="h-4 w-4" />
-                  <span>Highest Rated</span>
+                  <span>{t("common.sortHighestRated")}</span>
                 </div>
               </SelectItem>
             </SelectContent>

@@ -71,7 +71,7 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
                 size="sm"
                 onClick={() => setIsEditing(true)}
               >
-                Edit
+                {t("common.edit")}
               </Button>
             </>
           )}
@@ -79,26 +79,26 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
         <p className="text-gray-600 text-sm">{user.email}</p>
         {user.createdAt && (
           <p className="text-gray-500 text-xs mt-1">
-            Member since {format(user.createdAt.toDate(), "MMM d, yyyy")}
+            {t("profile.memberSince")}{' '} {format(user.createdAt.toDate(), "MMM d, yyyy")}
           </p>
         )}
       </div>
 
       <div className="space-y-4">
         <div>
-          <label className="block text-sm font-medium mb-2">Email</label>
+          <label className="block text-sm font-medium mb-2">{t("auth.email")}</label>
           <Input value={user.email} disabled/>
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-2">Emoji Avatar</label>
+          <label className="block text-sm font-medium mb-2">{t("profile.emojiAvatar")}</label>
           <div className="flex items-center gap-4">
             <EmojiPicker
               value={user.emojiAvatar}
               onChange={onAvatarChange}
             />
             <span className="text-xs text-gray-500">
-              Click to change your avatar
+              {t("profile.changeAvatar")}
             </span>
           </div>
         </div>
@@ -111,7 +111,7 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
           className="w-full"
           onClick={() => navigate("/create")}
         >
-          Upload New Cake
+          {t("profile.uploadNewCake")}
         </Button>
 
         <Button
@@ -119,7 +119,7 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
           className="w-full"
           onClick={onSignOut}
         >
-          Sign Out
+          {t("common.signOut")}
         </Button>
 
         <AlertDialog>
@@ -128,7 +128,7 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
               variant="destructive"
               className="w-full"
             >
-              Delete Account
+              {t("profile.deleteAccount")}
             </Button>
           </AlertDialogTrigger>
           <AlertDialogContent>

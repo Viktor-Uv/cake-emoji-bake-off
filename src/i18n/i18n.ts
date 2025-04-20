@@ -15,6 +15,9 @@ const en = {
     loading: "Loading...",
     error: "Error",
     success: "Success",
+    sortNewestFirst: "Newest First",
+    sortOldestFirst: "Oldest First",
+    sortHighestRated: "Highest Rated"
   },
   auth: {
     signInRequired: "You must be signed in",
@@ -64,10 +67,14 @@ const en = {
     anonymous: "Anonymous Baker",
     loading: "Loading cakes...",
     viewFullscreen: "View fullscreen",
-    closeGallery: "Close gallery"
+    closeGallery: "Close gallery",
+    ratingSingular: "rating",
+    ratingPlural: "ratings",
+    ratingPluralAlt: "ratings"
   },
   profile: {
-    memberSince: "Member since {{date}}",
+    memberSince: "Member since",
+    emojiAvatar: "Emoji avatar",
     changeAvatar: "Click to change your avatar",
     language: "Language",
     english: "English",
@@ -113,7 +120,10 @@ const ua = {
     edit: "Редагувати",
     loading: "Завантаження...",
     error: "Помилка",
-    success: "Успіх"
+    success: "Успіх",
+    sortNewestFirst: "Спочатку новіші",
+    sortOldestFirst: "Спочатку старіші",
+    sortHighestRated: "Спочатку найвище оцінені"
   },
   auth: {
     signInRequired: "Ви повинні увійти в акаунт",
@@ -163,10 +173,14 @@ const ua = {
     anonymous: "Анонімний пекар",
     loading: "Завантаження пасок...",
     viewFullscreen: "Переглянути на весь екран",
-    closeGallery: "Закрити галерею"
+    closeGallery: "Закрити галерею",
+    ratingSingular: "оцінка",
+    ratingPlural: "оцінок",
+    ratingPluralAlt: "оцінки"
   },
   profile: {
-    memberSince: "З нами з {{date}}",
+    memberSince: "З нами з",
+    emojiAvatar: "Emoji аватар",
     changeAvatar: "Натисніть, щоб змінити ваш аватар",
     language: "Мова",
     english: "Англійська",

@@ -4,6 +4,7 @@ import { Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/sonner";
 import DraggableImageGallery from "./DraggableImageGallery";
+import {useTranslation} from "react-i18next";
 
 interface ImageUploaderProps {
   onImagesSelected: (images: File[], orderedImages: File[]) => void;
@@ -18,6 +19,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
   existingImages = [],
   onExistingImagesChange
 }) => {
+  const { t } = useTranslation();
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -130,7 +132,6 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
     <div className="space-y-6">
       {allImages.length > 0 && (
         <div>
-          <p className="text-sm font-medium mb-2">Images (Drag to reorder)</p>
           <DraggableImageGallery
             images={allImages}
             onReorder={handleReorder}
@@ -160,15 +161,10 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
             className="w-full"
           >
             <Upload className="mr-2 h-4 w-4" />
-            {totalImagesCount === 0 ? 'Upload Images' : 'Add More Images'}
+            {totalImagesCount === 0 ? t("cakes.uploadImages") : t("cakes.addMoreImages")}
           </Button>
         </div>
       )}
-      
-      <p className="text-sm text-gray-500 text-center">
-        {totalImagesCount} / {maxImages} images
-        {totalImagesCount > 0 && " (drag to reorder)"}
-      </p>
     </div>
   );
 };

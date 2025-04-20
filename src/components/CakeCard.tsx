@@ -321,7 +321,11 @@ const CakeCard: React.FC<CakeCardProps> = ({ cake, onRatingChange, onCakeUpdate,
                     size="small"
                   />
                   <span className="text-sm text-gray-600">
-                    {cake.averageRating.toFixed(1)} ({cake.ratings?.length || 0} {cake.ratings?.length === 1 ? 'rating' : 'ratings'})
+                    {cake.averageRating.toFixed(1)}{" "}
+                    ({cake.ratings?.length || 0}{" "}
+                    {cake.ratings?.length % 10 === 1 ? t("cakes.ratingSingular") :
+                      cake.ratings?.length % 10 >=2 && cake.ratings?.length % 10 <= 4 ? t("cakes.ratingPluralAlt") :
+                      t("cakes.ratingPlural")})
                   </span>
                 </div>
               </div>
