@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
@@ -6,12 +5,14 @@ import { collection, query, where, getDocs, orderBy } from "firebase/firestore";
 import { firestore } from "@/lib/firebase";
 import { Cake } from "@/types/cake";
 import { toast } from "@/components/ui/sonner";
-import { Button } from "@/components/ui/button"; // Add this import
+import { Button } from "@/components/ui/button";
+import { useTranslation } from "react-i18next";
 import UserProfileCard from "@/components/profile/UserProfileCard";
 import UserCakesSection, { SortOption } from "@/components/profile/UserCakesSection";
 
 const Profile: React.FC = () => {
   const { user, signOut, loading, updateUserAvatar } = useAuth();
+  const { t } = useTranslation();
   const [userCakes, setUserCakes] = useState<Cake[]>([]);
   const [sortOption, setSortOption] = useState<SortOption>("date-desc");
   const [loadingCakes, setLoadingCakes] = useState(false);
@@ -85,7 +86,7 @@ const Profile: React.FC = () => {
     return (
       <div className="flex flex-col items-center justify-center min-h-[50vh]">
         <div className="animate-spin text-4xl mb-4">🍰</div>
-        <p>Loading profile...</p>
+        <p>{t("profile.loading")}</p>
       </div>
     );
   }
@@ -95,9 +96,9 @@ const Profile: React.FC = () => {
       <div className="max-w-md mx-auto">
         <div className="flex flex-col items-center justify-center py-12 text-center">
           <div className="text-6xl mb-6">👋</div>
-          <h1 className="text-2xl font-bold mb-4">Welcome to Easter Cake Bake-Off</h1>
+          <h1 className="text-2xl font-bold mb-4">{t("profile.welcome")}</h1>
           <p className="mb-8 text-gray-600">
-            Sign in to upload your Easter cake creations and rate others!
+            {t("profile.signInMessage")}
           </p>
           
           <div className="space-y-4 w-full">
@@ -105,7 +106,7 @@ const Profile: React.FC = () => {
               className="w-full"
               onClick={() => navigate("/login")}
             >
-              Sign In
+              {t("common.signIn")}
             </Button>
             
             <Button 
@@ -113,7 +114,7 @@ const Profile: React.FC = () => {
               variant="outline"
               onClick={() => navigate("/register")}
             >
-              Create Account
+              {t("profile.createAccount")}
             </Button>
           </div>
         </div>

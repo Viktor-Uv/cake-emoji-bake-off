@@ -1,7 +1,7 @@
-
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -15,6 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 const Login: React.FC = () => {
+  const { t } = useTranslation();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isSignIn, setIsSignIn] = useState(true);
@@ -46,16 +47,16 @@ const Login: React.FC = () => {
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl flex items-center justify-center gap-2">
             <span className="text-3xl">🍰</span>
-            Sign In
+            {t("auth.signIn")}
           </CardTitle>
           <CardDescription>
-            Sign in to upload and rate Easter cakes
+            {t("profile.signInMessage")}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <form onSubmit={handleEmailAuth} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">{t("auth.email")}</Label>
               <Input
                 id="email"
                 placeholder="your.email@example.com"
@@ -66,7 +67,7 @@ const Login: React.FC = () => {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password">{t("auth.password")}</Label>
               <Input
                 id="password"
                 type="password"
@@ -82,7 +83,7 @@ const Login: React.FC = () => {
             )}
             
             <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "Signing In..." : "Sign In with Email"}
+              {loading ? t("common.loading") : t("auth.signInWithEmail")}
             </Button>
           </form>
           
@@ -92,7 +93,7 @@ const Login: React.FC = () => {
             </div>
             <div className="relative flex justify-center text-xs uppercase">
               <span className="bg-background px-2 text-muted-foreground">
-                Or continue with
+                {t("auth.orContinueWith")}
               </span>
             </div>
           </div>
@@ -104,19 +105,19 @@ const Login: React.FC = () => {
               onClick={handleGoogleAuth}
               disabled={loading}
             >
-              Sign in with Google
+              {t("auth.signInWithGoogle")}
             </Button>
           </div>
         </CardContent>
         <CardFooter className="flex flex-col">
           <div className="text-sm text-center text-gray-500 mt-2">
-            Don't have an account?{" "}
+            {t("auth.noAccount")}{" "}
             <Button
               variant="link"
               className="p-0 h-auto"
               onClick={() => navigate("/register")}
             >
-              Register
+              {t("auth.register")}
             </Button>
           </div>
         </CardFooter>

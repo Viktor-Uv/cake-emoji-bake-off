@@ -1,7 +1,7 @@
-
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { useTranslation } from "react-i18next";
 import { EMOJI_OPTIONS } from "@/constants/emoji-constants";
 import { Button } from "@/components/ui/button";
 import {
@@ -17,6 +17,7 @@ import { Label } from "@/components/ui/label";
 import EmojiPicker from "@/components/EmojiPicker";
 
 const Register: React.FC = () => {
+  const { t } = useTranslation();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
@@ -52,19 +53,19 @@ const Register: React.FC = () => {
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl flex items-center justify-center gap-2">
             <span className="text-3xl">🎂</span>
-            Create Account
+            {t("auth.createAccountTitle")}
           </CardTitle>
           <CardDescription>
-            Join the Easter Cake Bake-Off community
+            {t("auth.createAccountDesc")}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <form onSubmit={handleRegister} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="displayName">Display Name</Label>
+              <Label htmlFor="displayName">{t("auth.displayName")}</Label>
               <Input
                 id="displayName"
-                placeholder="Your Name"
+                placeholder={t("auth.yourName")}
                 value={displayName}
                 onChange={(e) => setDisplayName(e.target.value)}
                 required
@@ -72,7 +73,7 @@ const Register: React.FC = () => {
             </div>
 
             <div className="space-y-2">
-              <Label>Choose Avatar Emoji</Label>
+              <Label>{t("auth.chooseAvatar")}</Label>
               <div className="flex justify-center">
                 <EmojiPicker
                   value={selectedEmoji}
@@ -82,7 +83,7 @@ const Register: React.FC = () => {
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">{t("auth.email")}</Label>
               <Input
                 id="email"
                 placeholder="your.email@example.com"
@@ -94,7 +95,7 @@ const Register: React.FC = () => {
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password">{t("auth.password")}</Label>
               <Input
                 id="password"
                 type="password"
@@ -111,7 +112,7 @@ const Register: React.FC = () => {
             )}
             
             <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "Creating Account..." : "Create Account"}
+              {loading ? t("auth.creatingAccount") : t("auth.createAccountButton")}
             </Button>
           </form>
           
@@ -121,7 +122,7 @@ const Register: React.FC = () => {
             </div>
             <div className="relative flex justify-center text-xs uppercase">
               <span className="bg-background px-2 text-muted-foreground">
-                Or continue with
+                {t("auth.orContinueWith")}
               </span>
             </div>
           </div>
@@ -133,19 +134,19 @@ const Register: React.FC = () => {
               onClick={handleGoogleAuth}
               disabled={loading}
             >
-              Sign up with Google
+              {t("auth.signInWithGoogle")}
             </Button>
           </div>
         </CardContent>
         <CardFooter className="flex flex-col">
           <div className="text-sm text-center text-gray-500 mt-2">
-            Already have an account?{" "}
+            {t("auth.hasAccount")}{" "}
             <Button
               variant="link"
               className="p-0 h-auto"
               onClick={() => navigate("/login")}
             >
-              Sign In
+              {t("auth.signIn")}
             </Button>
           </div>
         </CardFooter>

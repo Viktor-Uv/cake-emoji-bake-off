@@ -1,7 +1,7 @@
-
 import React, { useState } from "react";
 import { format } from "date-fns";
-import {Cake, CakeImage} from "@/types/cake";
+import { useTranslation } from "react-i18next";
+import { Cake, CakeImage } from "@/types/cake";
 import { useAuth } from "@/contexts/AuthContext";
 import { Card, CardHeader, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -24,6 +24,7 @@ interface CakeCardProps {
 }
 
 const CakeCard: React.FC<CakeCardProps> = ({ cake, onRatingChange, onCakeUpdate, onCakeDelete }) => {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const [isImageOpen, setIsImageOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -34,10 +35,7 @@ const CakeCard: React.FC<CakeCardProps> = ({ cake, onRatingChange, onCakeUpdate,
   const [existingImages, setExistingImages] = useState<Array<CakeImage>>(cake.images);
   const [activeIndex, setActiveIndex] = useState(0);
   
-  // Check if the current user has already rated this cake
   const userRating = cake.ratings?.find((r) => r.userId === user?.id)?.rating || 0;
-  
-  // Check if this is the user's own cake
   const isOwnCake = user?.id === cake.userId;
   
   const handleRating = async (rating: number) => {
@@ -81,7 +79,6 @@ const CakeCard: React.FC<CakeCardProps> = ({ cake, onRatingChange, onCakeUpdate,
       return;
     }
     
-    // Check if we have at least one image (either existing or new)
     if (existingImages.length === 0 && selectedImages.length === 0) {
       toast.error("At least one image is required");
       return;
@@ -90,7 +87,6 @@ const CakeCard: React.FC<CakeCardProps> = ({ cake, onRatingChange, onCakeUpdate,
     try {
       setLoading(true);
       
-      // Convert existing images back to the CakeImage format
       const formattedExistingImages: CakeImage[] = existingImages.map((img) => ({
         id: img.id,
         url: img.url,
@@ -135,7 +131,6 @@ const CakeCard: React.FC<CakeCardProps> = ({ cake, onRatingChange, onCakeUpdate,
     }
   };
 
-  // Safely format the date, handling potential invalid date values
   const formatDate = (dateValue: any): string => {
     try {
       if (!dateValue) return "Unknown date";
@@ -160,28 +155,28 @@ const CakeCard: React.FC<CakeCardProps> = ({ cake, onRatingChange, onCakeUpdate,
   const renderEditMode = () => (
     <CardContent className="space-y-4">
       <div>
-        <label className="block text-sm font-medium mb-1">Title</label>
+        <label className="block text-sm font-medium mb-1">{t("cakes.title")}</label>
         <Input
           value={editedTitle}
           onChange={(e) => setEditedTitle(e.target.value)}
-          placeholder="Cake title"
+          placeholder={t("cakes.title")}
           required
         />
       </div>
       
       <div>
-        <label className="block text-sm font-medium mb-1">Description</label>
+        <label className="block text-sm font-medium mb-1">{t("cakes.description")}</label>
         <Textarea
           value={editedDescription}
           onChange={(e) => setEditedDescription(e.target.value)}
-          placeholder="Cake description (optional)"
+          placeholder={t("cakes.description")}
           rows={4}
         />
       </div>
       
       <div>
         <label className="block text-sm font-medium mb-2">
-          Photos
+          {t("cakes.photos")}
         </label>
         <ImageUploader 
           onImagesSelected={handleImagesSelected}
@@ -192,7 +187,7 @@ const CakeCard: React.FC<CakeCardProps> = ({ cake, onRatingChange, onCakeUpdate,
       
       <div className="flex gap-2 pt-2">
         <Button onClick={handleUpdateCake} disabled={loading}>
-          Save Changes
+          {t("cakes.saveChanges")}
         </Button>
         <Button
           variant="outline"
@@ -203,13 +198,12 @@ const CakeCard: React.FC<CakeCardProps> = ({ cake, onRatingChange, onCakeUpdate,
             setExistingImages(cake.images);
           }}
         >
-          Cancel
+          {t("common.cancel")}
         </Button>
       </div>
     </CardContent>
   );
 
-  // Helper function to get appropriate image URL
   const getImageUrl = (image: any) => {
     return image.thumbnailUrl || image.url;
   };
@@ -225,7 +219,7 @@ const CakeCard: React.FC<CakeCardProps> = ({ cake, onRatingChange, onCakeUpdate,
           <div className="flex justify-between items-center">
             <div className="flex items-center space-x-2">
               <span className="text-2xl">{cake.userEmoji}</span>
-              <span className="font-medium">{cake.userName || "Anonymous Baker"}</span>
+              <span className="font-medium">{cake.userName || t("cakes.anonymous")}</span>
             </div>
             <div className="flex items-center gap-2">
               {isOwnCake && !isEditing && (
@@ -234,6 +228,7 @@ const CakeCard: React.FC<CakeCardProps> = ({ cake, onRatingChange, onCakeUpdate,
                     variant="ghost"
                     size="icon"
                     onClick={() => setIsEditing(true)}
+                    title={t("cakes.editCake")}
                   >
                     <Pencil className="h-4 w-4" />
                   </Button>
@@ -243,21 +238,22 @@ const CakeCard: React.FC<CakeCardProps> = ({ cake, onRatingChange, onCakeUpdate,
                         variant="ghost"
                         size="icon"
                         className="text-destructive hover:text-destructive"
+                        title={t("cakes.deleteCake")}
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </AlertDialogTrigger>
                     <AlertDialogContent>
                       <AlertDialogHeader>
-                        <AlertDialogTitle>Delete Cake</AlertDialogTitle>
+                        <AlertDialogTitle>{t("cakes.confirmDelete")}</AlertDialogTitle>
                         <AlertDialogDescription>
-                          Are you sure you want to delete this cake? This action cannot be undone.
+                          {t("cakes.deleteWarning")}
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogCancel>{t("cakes.cancel")}</AlertDialogCancel>
                         <AlertDialogAction onClick={handleDeleteCake}>
-                          Delete
+                          {t("cakes.delete")}
                         </AlertDialogAction>
                       </AlertDialogFooter>
                     </AlertDialogContent>
@@ -296,7 +292,6 @@ const CakeCard: React.FC<CakeCardProps> = ({ cake, onRatingChange, onCakeUpdate,
                   ))}
                 </CarouselContent>
                 
-                {/* Instagram-style dots indicator */}
                 {cake.images.length > 1 && (
                   <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-1.5">
                     {cake.images.map((_, index) => (
@@ -335,7 +330,7 @@ const CakeCard: React.FC<CakeCardProps> = ({ cake, onRatingChange, onCakeUpdate,
             <CardFooter className="border-t pt-4 flex flex-col items-stretch">
               {!isOwnCake && (
                 <div className="flex items-center justify-between w-full mb-2">
-                  <span className="font-medium">Rate this cake:</span>
+                  <span className="font-medium">{t("cakes.rateThis")}</span>
                   <RatingStars 
                     value={userRating} 
                     onChange={handleRating}
@@ -350,7 +345,6 @@ const CakeCard: React.FC<CakeCardProps> = ({ cake, onRatingChange, onCakeUpdate,
         )}
       </Card>
       
-      {/* Image Gallery Dialog */}
       <Dialog open={isImageOpen} onOpenChange={setIsImageOpen}>
         <DialogContent className="max-w-4xl">
           <DialogHeader>
@@ -376,7 +370,6 @@ const CakeCard: React.FC<CakeCardProps> = ({ cake, onRatingChange, onCakeUpdate,
               ))}
             </CarouselContent>
             
-            {/* Instagram-style dots for fullscreen view */}
             {cake.images.length > 1 && (
               <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-1.5">
                 {cake.images.map((_, index) => (
