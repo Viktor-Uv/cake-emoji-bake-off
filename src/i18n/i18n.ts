@@ -19,6 +19,14 @@ const en = {
     sortOldestFirst: "Oldest First",
     sortHighestRated: "Highest Rated"
   },
+  process: {
+    creating: "Creating...",
+    loading: "Loading...",
+    deleting: "Deleting...",
+    updating: "Updating...",
+    rating: "Rating...",
+    uploading: "Uploading..."
+  },
   auth: {
     signInRequired: "You must be signed in",
     signInMessage: "Please sign in or create an account to upload your cake.",
@@ -46,6 +54,8 @@ const en = {
     signIn: "Sign In"
   },
   cakes: {
+    share: "Share Your Cake",
+    upload: "Upload Your Easter Cake",
     title: "Cake Title",
     description: "Cake Description",
     photos: "Cake Photos",
@@ -105,6 +115,13 @@ const en = {
     topRated: "Top Rated",
     addCake: "Add Cake",
     profile: "Profile"
+  },
+  errors: {
+    validation: {
+      cakes: {
+        titleMin: "Title must be at least 3 characters long"
+      }
+    }
   }
 };
 
@@ -124,6 +141,14 @@ const ua = {
     sortNewestFirst: "Спочатку новіші",
     sortOldestFirst: "Спочатку старіші",
     sortHighestRated: "Спочатку найвище оцінені"
+  },
+  process: {
+    creating: "Створюємо...",
+    loading: "Завантажуємо...",
+    deleting: "Видаляємо...",
+    updating: "Оновлюємо...",
+    rating: "Оцінюємо...",
+    uploading: "Завантажуємо..."
   },
   auth: {
     signInRequired: "Ви повинні увійти в акаунт",
@@ -152,6 +177,8 @@ const ua = {
     signIn: "Увійти"
   },
   cakes: {
+    share: "Поділіться своєю паскою",
+    upload: "Завантажте свою паску",
     title: "Назва паски",
     description: "Опис паски",
     photos: "Фото паски",
@@ -211,6 +238,13 @@ const ua = {
     topRated: "Топ",
     addCake: "Додати паску",
     profile: "Профіль"
+  },
+  errors: {
+    validation: {
+      cakes: {
+        titleMin: "Назва має бути не менше 3 символів"
+      }
+    }
   }
 };
 
