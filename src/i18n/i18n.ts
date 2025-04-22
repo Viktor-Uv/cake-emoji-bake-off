@@ -17,7 +17,8 @@ const en = {
     success: "Success",
     sortNewestFirst: "Newest First",
     sortOldestFirst: "Oldest First",
-    sortHighestRated: "Highest Rated"
+    sortHighestRated: "Highest Rated",
+    goToFeed: "Go to Feed"
   },
   process: {
     creating: "Creating...",
@@ -54,6 +55,8 @@ const en = {
     signIn: "Sign In"
   },
   cakes: {
+    noCakes: "No cakes created yet!",
+    createCakes: "Create some cakes to see them appear here.",
     share: "Share Your Cake",
     upload: "Upload Your Easter Cake",
     title: "Cake Title",
@@ -104,6 +107,12 @@ const en = {
     noCakesDesc: "You haven't uploaded any Easter cake creations yet.",
     uploadFirst: "Upload Your First Cake"
   },
+  topRated: {
+    title: "Top Rated Cakes",
+    signIn: "Sign in to see top rated cakes",
+    join: "Join our community to rate and discover amazing cake creations.",
+    loading: "Loading top-rated cakes..."
+  },
   notFound: {
     title: "404",
     description: "Oops! Page not found",
@@ -140,7 +149,8 @@ const ua = {
     success: "Успіх",
     sortNewestFirst: "Спочатку новіші",
     sortOldestFirst: "Спочатку старіші",
-    sortHighestRated: "Спочатку найвище оцінені"
+    sortHighestRated: "Спочатку найвище оцінені",
+    goToFeed: "Перейти до ленти"
   },
   process: {
     creating: "Створюємо...",
@@ -177,6 +187,8 @@ const ua = {
     signIn: "Увійти"
   },
   cakes: {
+    noCakes: "Поки що ніхто не робив пасок!",
+    createCakes: "Створіть свої перші паски, щоб їх тут побачили",
     share: "Поділіться своєю паскою",
     upload: "Завантажте свою паску",
     title: "Назва паски",
@@ -226,6 +238,12 @@ const ua = {
     noCakes: "Ще немає пасок!",
     noCakesDesc: "Ви ще не завантажили жодної паски.",
     uploadFirst: "Завантажте свою першу паску"
+  },
+  topRated: {
+    title: "Топ пасок",
+    signIn: "Увійдіть, щоб переглянути найвище оцінені паски",
+    join: "Приєднуйтеся до нашого спільноти, щоб оцінювати та знаходити найкращі паски.",
+    loading: "Завантажуємо найвище оцінені паски..."
   },
   notFound: {
     title: "404",

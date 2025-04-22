@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { getCakesByRating } from "@/services/cakeService";
 import { Cake } from "@/types/cake";
@@ -7,8 +6,10 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { toast } from "@/components/ui/sonner";
+import {useTranslation} from "react-i18next";
 
 const TopRated: React.FC = () => {
+  const { t } = useTranslation();
   const [cakes, setCakes] = useState<Cake[]>([]);
   const [loading, setLoading] = useState(false);
   const { user } = useAuth();
@@ -54,12 +55,12 @@ const TopRated: React.FC = () => {
     return (
       <div className="flex flex-col items-center justify-center min-h-[70vh] text-center p-4">
         <div className="text-6xl mb-6">⭐</div>
-        <h2 className="text-2xl font-bold mb-4">Sign in to see top rated cakes</h2>
+        <h2 className="text-2xl font-bold mb-4">{t("topRated.signIn")}</h2>
         <p className="mb-6 text-gray-600">
-          Join our community to rate and discover amazing cake creations.
+          {t("topRated.join")}
         </p>
         <Link to="/login">
-          <Button>Sign In</Button>
+          <Button>{t("common.signIn")}</Button>
         </Link>
       </div>
     );
@@ -69,7 +70,7 @@ const TopRated: React.FC = () => {
     return (
       <div className="flex flex-col items-center justify-center min-h-[50vh]">
         <div className="animate-spin text-4xl mb-4">🍰</div>
-        <p>Loading top-rated cakes...</p>
+        <p>{t("topRated.loading")}</p>
       </div>
     );
   }
@@ -78,12 +79,12 @@ const TopRated: React.FC = () => {
     return (
       <div className="flex flex-col items-center justify-center min-h-[70vh] text-center p-4">
         <div className="text-6xl mb-6">⭐</div>
-        <h2 className="text-2xl font-bold mb-4">No rated cakes yet!</h2>
+        <h2 className="text-2xl font-bold mb-4">{t("cakes.noCakes")}</h2>
         <p className="mb-6 text-gray-600">
-          Rate some cakes on the feed page to see them appear here.
+          {t("cakes.createCakes")}
         </p>
         <Link to="/">
-          <Button>Go to Feed</Button>
+          <Button>{t("common.goToFeed")}</Button>
         </Link>
       </div>
     );
@@ -91,7 +92,7 @@ const TopRated: React.FC = () => {
 
   return (
     <div>
-      <h2 className="text-2xl font-bold mb-6">Top Rated Cakes</h2>
+      <h2 className="text-2xl font-bold mb-6">{t("topRated.title")}</h2>
       <div>
         {cakes.map((cake) => (
           <CakeCard 
