@@ -38,14 +38,16 @@ const getCakeDisplayDateRange = () => {
 
 const Index: React.FC = () => {
   const [cakes, setCakes] = useState<Cake[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { user } = useAuth();
   const { t } = useTranslation();
 
   useEffect(() => {
-    fetchRecentCakes();
-  }, []);
+    if (user) {
+      fetchRecentCakes();
+    }
+  }, [user]);
 
   const fetchRecentCakes = async () => {
     try {
