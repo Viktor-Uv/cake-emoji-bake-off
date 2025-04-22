@@ -12,17 +12,17 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useTranslation } from "react-i18next";
 import LanguageSelector from "@/components/common/LanguageSelector";
 
-const formSchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(6),
-});
-
-type FormData = z.infer<typeof formSchema>;
-
 const Login = () => {
   const { t } = useTranslation();
   const { signInWithEmail, signInWithGoogle, user, loading } = useAuth();
   const [submitting, setSubmitting] = useState(false);
+
+  const formSchema = z.object({
+    email: z.string().email(t("errors.validation.auth.email")),
+    password: z.string().min(6, t("errors.validation.auth.password")),
+  });
+
+  type FormData = z.infer<typeof formSchema>;
   
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),

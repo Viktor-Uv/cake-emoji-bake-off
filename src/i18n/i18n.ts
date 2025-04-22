@@ -135,6 +135,10 @@ const en = {
   },
   errors: {
     validation: {
+      auth: {
+        email: "Email is required",
+        password: "Password must be at least 6 characters long"
+      },
       cakes: {
         titleMin: "Title must be at least 3 characters long"
       }
@@ -275,6 +279,10 @@ const ua = {
   },
   errors: {
     validation: {
+      auth: {
+        email: "Електронна пошта обов'язкова",
+        password: "Пароль повинен містити не менше 6 символів"
+      },
       cakes: {
         titleMin: "Назва має бути не менше 3 символів"
       }
