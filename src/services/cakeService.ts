@@ -45,7 +45,7 @@ export async function createCake(
       const {mainImage, thumbnail} = await processImage(image);
 
       // Create a unique path for each image
-      const imagePath = `cakes/${newCakeId}/${Date.now()}_${mainImage.name}`;
+      const imagePath = `cakes/${newCakeId}/${Date.now()}_${i}_${mainImage.name}`;
       const imageRef = ref(storage, imagePath);
 
       // Upload the main image
@@ -59,7 +59,7 @@ export async function createCake(
       let thumbnailPath: string | null = null;
 
       if (thumbnail) {
-        thumbnailPath = `cakes/${currentUser.id}/${Date.now()}_${i}_thumb_${thumbnail.name}`;
+        thumbnailPath = `cakes/${newCakeId}/${Date.now()}_${i}_thumb_${thumbnail.name}`;
         const thumbnailRef = ref(storage, thumbnailPath);
 
         // Upload the thumbnail
