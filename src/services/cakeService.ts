@@ -59,7 +59,7 @@ export async function createCake(
       let thumbnailPath: string | null = null;
 
       if (thumbnail) {
-        thumbnailPath = `cakes/${newCakeId}/${Date.now()}_${i}_thumb_${thumbnail.name}`;
+        thumbnailPath = `cakes/${newCakeId}/${Date.now()}_${i}_${thumbnail.name}`;
         const thumbnailRef = ref(storage, thumbnailPath);
 
         // Upload the thumbnail
@@ -175,7 +175,7 @@ export async function updateCake(
         let thumbnailPath: string | null;
 
         if (thumbnail) {
-          thumbnailPath = `cakes/${cakeDoc.data().userId}/${Date.now()}_${i}_thumb_${thumbnail.name}`;
+          thumbnailPath = `cakes/${cakeDoc.data().userId}/${Date.now()}_${i}_${thumbnail.name}`;
           const thumbnailRef = ref(storage, thumbnailPath);
 
           // Upload the thumbnail
