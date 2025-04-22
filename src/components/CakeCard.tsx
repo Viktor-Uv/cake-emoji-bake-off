@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, {useRef, useState} from "react";
 import { format } from "date-fns";
 import { useTranslation } from "react-i18next";
 import { Cake, CakeImage } from "@/types/cake";
@@ -25,6 +25,7 @@ interface CakeCardProps {
 }
 
 const CakeCard: React.FC<CakeCardProps> = ({ cake, onRatingChange, onCakeUpdate, onCakeDelete }) => {
+  const dialogCarouselApi = useRef<any>(null);
   const { t } = useTranslation();
   const { user } = useAuth();
   const [isImageOpen, setIsImageOpen] = useState(false);
@@ -274,9 +275,9 @@ const CakeCard: React.FC<CakeCardProps> = ({ cake, onRatingChange, onCakeUpdate,
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
-                        <AlertDialogCancel>{t("cakes.cancel")}</AlertDialogCancel>
+                        <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
                         <AlertDialogAction onClick={handleDeleteCake}>
-                          {t("cakes.delete")}
+                          {t("common.delete")}
                         </AlertDialogAction>
                       </AlertDialogFooter>
                     </AlertDialogContent>
@@ -293,7 +294,7 @@ const CakeCard: React.FC<CakeCardProps> = ({ cake, onRatingChange, onCakeUpdate,
         {!isEditing ? (
           <>
             <div className="px-4 relative">
-              <Carousel className="w-full cursor-pointer" 
+              <Carousel className="w-full cursor-pointer"
                 onClick={() => setIsImageOpen(true)}
                 setApi={(api) => {
                   api?.on("select", () => {
@@ -371,16 +372,24 @@ const CakeCard: React.FC<CakeCardProps> = ({ cake, onRatingChange, onCakeUpdate,
           renderEditMode()
         )}
       </Card>
-      
-      <Dialog open={isImageOpen} onOpenChange={setIsImageOpen}>
+
+      <Dialog
+        open={isImageOpen}
+        onOpenChange={(isOpen) => {
+          setIsImageOpen(isOpen);
+          if (!isOpen) {
+            setActiveIndex(dialogActiveIndex); // Sync the main carousel to dialog
+          }
+        }}
+      >
         <DialogContent className="max-w-4xl">
           <DialogHeader>
             <DialogTitle>{cake.title}</DialogTitle>
           </DialogHeader>
-          
+
           <Carousel className="w-full"
             setApi={(api) => {
-              api?.scrollTo(activeIndex);
+              dialogCarouselApi.current = api;
               api?.on("select", () => {
                 setDialogActiveIndex(api.selectedScrollSnap());
               });
