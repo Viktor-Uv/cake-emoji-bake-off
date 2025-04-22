@@ -76,6 +76,41 @@ const Index: React.FC = () => {
     }
   };
 
+  if (!user) {
+    return (
+      <div className="max-w-md mx-auto">
+        <div className="flex flex-col items-center justify-center py-12 text-center">
+          <div className="text-6xl mb-6">🍰</div>
+          <h1 className="text-2xl font-bold mb-4">{t("feed.title")}</h1>
+          <p className="mb-8 text-gray-600">
+            {t("feed.join")}
+          </p>
+
+          <div className="space-y-4 w-full">
+            <Button
+              className="w-full"
+              onClick={() => navigate("/login")}
+            >
+              {t("common.signIn")}
+            </Button>
+
+            <Button
+              className="w-full"
+              variant="outline"
+              onClick={() => navigate("/register")}
+            >
+              {t("profile.createAccount")}
+            </Button>
+          </div>
+
+          <div className="mt-8 w-full">
+            <LanguageSelector />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[50vh]">
@@ -87,48 +122,31 @@ const Index: React.FC = () => {
 
   if (cakes.length === 0) {
     return (
-      <div className="max-w-md mx-auto text-center py-12">
-        <div className="text-6xl mb-6">🍰</div>
-        <h2 className="text-2xl font-bold mb-4">{t("cakes.noCakes")}</h2>
-        <p className="text-gray-500 mb-8">{t("cakes.createCakes")}</p>
-        
-        {user ? (
-          <Button onClick={() => navigate("/create")}>
-            {t("cakes.share")}
-          </Button>
-        ) : (
-          <div className="space-y-4">
-            <Button onClick={() => navigate("/login")}>
-              {t("common.signIn")}
-            </Button>
-            <div className="mt-4">
-              <LanguageSelector />
+      <div className="container mx-auto p-4">
+        <div className="max-w-md">
+          <div className="flex flex-col items-center justify-center py-12 text-center">
+            <div className="text-6xl mb-6">🎂</div>
+            <h1 className="text-2xl font-bold mb-4">{t("cakes.noCakes")}</h1>
+            <p className="mb-8 text-gray-600">
+              {t("cakes.noCakesDesc")}
+            </p>
+
+            <div className="space-y-4 w-full">
+              <Button
+                className="w-full"
+                onClick={() => navigate("/create")}
+              >
+                {t("cakes.create")}
+              </Button>
             </div>
           </div>
-        )}
+        </div>
       </div>
     );
   }
 
   return (
     <div className="container mx-auto p-4">
-      {!user && (
-        <div className="mb-8 p-6 bg-primary/5 rounded-lg shadow-sm">
-          <div className="flex flex-col md:flex-row items-center justify-between">
-            <div className="mb-4 md:mb-0 text-center md:text-left">
-              <h1 className="text-xl font-bold mb-2">{t("common.welcome")}</h1>
-              <p className="text-gray-600">{t("profile.signInMessage")}</p>
-            </div>
-            <div className="flex flex-col space-y-3 w-full md:w-auto">
-              <Button onClick={() => navigate("/login")}>
-                {t("common.signIn")}
-              </Button>
-              <LanguageSelector className="min-w-[200px]" />
-            </div>
-          </div>
-        </div>
-      )}
-      
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {cakes.map((cake) => (
           <CakeCard key={cake.id} cake={cake} />

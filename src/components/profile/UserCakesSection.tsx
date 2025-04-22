@@ -87,12 +87,15 @@ const UserCakesSection: React.FC<UserCakesSectionProps> = ({
       ) : (
         <div className="text-center py-12">
           <div className="text-4xl mb-4">🎂</div>
-          <h3 className="text-lg font-medium mb-2">No cakes yet!</h3>
+          <h3 className="text-lg font-medium mb-2">{t("profile.noCakes")}</h3>
           <p className="text-gray-500 mb-6">
-            You haven't uploaded any Easter cake creations yet.
+            {t("profile.noCakesDesc")}
           </p>
-          <Button onClick={() => navigate("/create")}>
-            Upload Your First Cake
+          <Button
+            className="w-full"
+            onClick={() => navigate("/create")}
+          >
+            {t("profile.uploadFirst")}
           </Button>
         </div>
       )}

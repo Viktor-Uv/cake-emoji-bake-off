@@ -52,6 +52,41 @@ const TopRated: React.FC = () => {
     }
   };
 
+  if (!user) {
+    return (
+      <div className="max-w-md mx-auto">
+        <div className="flex flex-col items-center justify-center py-12 text-center">
+          <div className="text-6xl mb-6">🏆</div>
+          <h1 className="text-2xl font-bold mb-4">{t("topRated.title")}</h1>
+          <p className="mb-8 text-gray-600">
+            {t("topRated.join")}
+          </p>
+
+          <div className="space-y-4 w-full">
+            <Button
+              className="w-full"
+              onClick={() => navigate("/login")}
+            >
+              {t("common.signIn")}
+            </Button>
+
+            <Button
+              className="w-full"
+              variant="outline"
+              onClick={() => navigate("/register")}
+            >
+              {t("profile.createAccount")}
+            </Button>
+          </div>
+
+          <div className="mt-8 w-full">
+            <LanguageSelector />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   if (loading || loadingCakes) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[50vh]">
@@ -61,49 +96,26 @@ const TopRated: React.FC = () => {
     );
   }
 
-  if (!user) {
-    return (
-      <div className="max-w-md mx-auto">
-        <div className="flex flex-col items-center justify-center py-12 text-center">
-          <div className="text-6xl mb-6">🏆</div>
-          <h1 className="text-2xl font-bold mb-4">{t("topRated.title")}</h1>
-          <p className="mb-8 text-gray-600">
-            {t("topRated.signIn")}
-          </p>
-          
-          <div className="space-y-4 w-full">
-            <Button 
-              className="w-full"
-              onClick={() => navigate("/login")}
-            >
-              {t("common.signIn")}
-            </Button>
-            
-            <Button 
-              className="w-full" 
-              variant="outline"
-              onClick={() => navigate("/register")}
-            >
-              {t("profile.createAccount")}
-            </Button>
-          </div>
-          
-          <div className="mt-8 w-full">
-            <LanguageSelector />
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-6">{t("topRated.title")}</h1>
-      
       {topCakes.length === 0 ? (
-        <div className="text-center py-12">
-          <p className="text-xl mb-2">{t("cakes.noCakes")}</p>
-          <p className="text-gray-500">{t("cakes.createCakes")}</p>
+        <div className="max-w-md">
+          <div className="flex flex-col items-center justify-center py-12 text-center">
+            <div className="text-6xl mb-6">🎂</div>
+            <h1 className="text-2xl font-bold mb-4">{t("cakes.noCakes")}</h1>
+            <p className="mb-8 text-gray-600">
+              {t("cakes.noCakesDesc")}
+            </p>
+
+            <div className="space-y-4 w-full">
+              <Button
+                className="w-full"
+                onClick={() => navigate("/create")}
+              >
+                {t("cakes.create")}
+              </Button>
+            </div>
+          </div>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

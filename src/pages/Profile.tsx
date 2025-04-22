@@ -100,7 +100,7 @@ const Profile: React.FC = () => {
           <div className="text-6xl mb-6">👋</div>
           <h1 className="text-2xl font-bold mb-4">{t("profile.welcome")}</h1>
           <p className="mb-8 text-gray-600">
-            {t("profile.signInMessage")}
+            {t("profile.joinMessage")}
           </p>
           
           <div className="space-y-4 w-full">

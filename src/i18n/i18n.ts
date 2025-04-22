@@ -56,7 +56,8 @@ const en = {
   },
   cakes: {
     noCakes: "No cakes created yet!",
-    createCakes: "Create some cakes to see them appear here.",
+    noCakesDesc: "Create some cakes to see them appear here.",
+    create: "Create a Cake",
     share: "Share Your Cake",
     upload: "Upload Your Easter Cake",
     title: "Cake Title",
@@ -95,6 +96,7 @@ const en = {
     loading: "Loading profile...",
     welcome: "Welcome to Easter Cake Bake-Off",
     signInMessage: "Sign in to upload and rate Easter cakes",
+    joinMessage: "Join our community to upload your own and rate other's Easter cakes",
     createAccount: "Create Account",
     uploadNewCake: "Upload New Cake",
     deleteAccount: "Delete Account",
@@ -112,6 +114,12 @@ const en = {
     signIn: "Sign in to see top rated cakes",
     join: "Join our community to rate and discover amazing cake creations.",
     loading: "Loading top-rated cakes..."
+  },
+  feed: {
+    title: "Welcome to Cake Bakery!",
+    signIn: "Sign in to see cake feed",
+    join: "Join our community to see delicious cakes and share your own creations.",
+    loading: "Loading cake feed..."
   },
   notFound: {
     title: "404",
@@ -188,7 +196,8 @@ const ua = {
   },
   cakes: {
     noCakes: "Поки що ніхто не робив пасок!",
-    createCakes: "Створіть свої перші паски, щоб їх тут побачили",
+    noCakesDesc: "Створіть свою першу паску, щоб її тут побачили",
+    create: "Додати паску",
     share: "Поділіться своєю паскою",
     upload: "Завантажте свою паску",
     title: "Назва паски",
@@ -227,6 +236,7 @@ const ua = {
     loading: "Завантаження профілю...",
     welcome: "Вітаємо на змаганні з випікання пасок до Великодня!",
     signInMessage: "Увійдіть, щоб завантажити та оцінити паски",
+    joinMessage: "Приєднуйтеся до нашої спільноти, щоб оцінювати та знаходити найкращі паски",
     createAccount: "Створити акаунт",
     uploadNewCake: "Завантажити нову паску",
     deleteAccount: "Видалити акаунт",
@@ -244,6 +254,12 @@ const ua = {
     signIn: "Увійдіть, щоб переглянути найвище оцінені паски",
     join: "Приєднуйтеся до нашого спільноти, щоб оцінювати та знаходити найкращі паски.",
     loading: "Завантажуємо найвище оцінені паски..."
+  },
+  feed: {
+    title: "Ласкаво просимо до Кондитерської!",
+    signIn: "Увійдіть, щоб переглянути ленту пасок",
+    join: "Приєднуйтеся до нашого спільноти, щоб переглядати смачні паски та завантажувати власні шедеври.",
+    loading: "Завантажуємо ленту пасок..."
   },
   notFound: {
     title: "404",
