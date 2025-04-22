@@ -49,7 +49,6 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
   return (
     <div className="bg-white rounded-lg shadow-md p-6">
       <div className="flex flex-col items-center mb-6">
-        <div className="text-6xl mb-4">{user.emojiAvatar}</div>
         <div className="flex items-center gap-2">
           {isEditing ? (
             <div className="flex gap-2">
@@ -58,11 +57,11 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
                 onChange={(e) => setNewDisplayName(e.target.value)}
                 className="w-48"
               />
-              <Button size="sm" onClick={handleUpdateDisplayName}>Save</Button>
+              <Button size="sm" onClick={handleUpdateDisplayName}>{t("common.save")}</Button>
               <Button size="sm" variant="outline" onClick={() => {
                 setNewDisplayName(user.displayName);
                 setIsEditing(false);
-              }}>Cancel</Button>
+              }}>{t("common.cancel")}</Button>
             </div>
           ) : (
             <>
@@ -83,27 +82,19 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
             {t("profile.memberSince")}{' '} {format(user.createdAt.toDate(), "MMM d, yyyy")}
           </p>
         )}
+
+        <div className="flex justify-center items-center gap-4">
+          <EmojiPicker
+            value={user.emojiAvatar}
+            onChange={onAvatarChange}
+          />
+          <span className="text-xs text-gray-500">
+              {t("profile.changeAvatar")}
+            </span>
+        </div>
       </div>
 
       <div className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium mb-2">{t("auth.email")}</label>
-          <Input value={user.email} disabled/>
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium mb-2">{t("profile.emojiAvatar")}</label>
-          <div className="flex items-center gap-4">
-            <EmojiPicker
-              value={user.emojiAvatar}
-              onChange={onAvatarChange}
-            />
-            <span className="text-xs text-gray-500">
-              {t("profile.changeAvatar")}
-            </span>
-          </div>
-        </div>
-
         <LanguageSelector />
       </div>
 
