@@ -133,20 +133,18 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
           </AlertDialogTrigger>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+              <AlertDialogTitle>{t("auth.deleteAccountWarning")}</AlertDialogTitle>
               <AlertDialogDescription>
-                This action cannot be undone. This will permanently delete your account
-                and remove all your data from our servers, including all your cakes
-                and ratings.
+                {t("auth.deleteAccountDescription")}
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
               <AlertDialogAction
                 onClick={deleteAccount}
                 className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
               >
-                Delete Account
+                {t("auth.deleteAccountTitle")}
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
