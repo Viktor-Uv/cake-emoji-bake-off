@@ -1,8 +1,16 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
+import { 
+  DndContext, 
+  closestCenter, 
+  KeyboardSensor, 
+  PointerSensor, 
+  useSensor, 
+  useSensors, 
+  TouchSensor
+} from '@dnd-kit/core';
 import { SortableContext, rectSortingStrategy, useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { useTranslation } from "react-i18next";
@@ -46,6 +54,7 @@ const SortableImage = ({ image, onDelete, canDelete }: {
         src={image.url} 
         alt=""
         className="w-full h-32 object-cover"
+        draggable={false} // Prevent browser's native drag behavior
       />
       
       {canDelete && (
@@ -71,8 +80,22 @@ const DraggableImageGallery: React.FC<DraggableImageGalleryProps> = ({
   minImages = 1,
 }) => {
   const { t } = useTranslation();
+  
+  // Configure sensors with better touch handling
   const sensors = useSensors(
-    useSensor(PointerSensor),
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        // This helps distinguish between scrolls and drags
+        distance: 8, // Minimum distance before activation
+      }
+    }),
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        // Use delay to differentiate drag from tap on mobile
+        delay: 250,
+        tolerance: 8,
+      }
+    }),
     useSensor(KeyboardSensor)
   );
 

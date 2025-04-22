@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { format } from "date-fns";
 import { useTranslation } from "react-i18next";
@@ -34,6 +35,7 @@ const CakeCard: React.FC<CakeCardProps> = ({ cake, onRatingChange, onCakeUpdate,
   const [selectedImages, setSelectedImages] = useState<File[]>([]);
   const [existingImages, setExistingImages] = useState<Array<CakeImage>>(cake.images);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [dialogActiveIndex, setDialogActiveIndex] = useState(0);
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
 
@@ -379,6 +381,9 @@ const CakeCard: React.FC<CakeCardProps> = ({ cake, onRatingChange, onCakeUpdate,
           <Carousel className="w-full"
             setApi={(api) => {
               api?.scrollTo(activeIndex);
+              api?.on("select", () => {
+                setDialogActiveIndex(api.selectedScrollSnap());
+              });
             }}
           >
             <CarouselContent>
@@ -401,7 +406,7 @@ const CakeCard: React.FC<CakeCardProps> = ({ cake, onRatingChange, onCakeUpdate,
                   <div 
                     key={index} 
                     className={`w-2 h-2 rounded-full ${
-                      index === activeIndex ? 'bg-primary' : 'bg-gray-300'
+                      index === dialogActiveIndex ? 'bg-white' : 'bg-white/50'
                     }`}
                   />
                 ))}
