@@ -70,9 +70,6 @@ const TopRated: React.FC = () => {
           <p className="mb-8 text-gray-600">
             {t("topRated.signIn")}
           </p>
-          <p className="mb-8 text-gray-500 text-sm">
-            {t("topRated.join")}
-          </p>
           
           <div className="space-y-4 w-full">
             <Button 

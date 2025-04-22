@@ -33,7 +33,6 @@ const LanguageSelector: React.FC<LanguageSelectorProps> = ({
 
   return (
     <div className={`space-y-2 ${className}`}>
-      {showLabel && <Label>{t("profile.language")}</Label>}
       <Select
         defaultValue={currentLanguage}
         value={currentLanguage}
