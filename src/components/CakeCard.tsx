@@ -145,10 +145,10 @@ const CakeCard: React.FC<CakeCardProps> = ({ cake, onRatingChange, onCakeUpdate,
       setPreviewUrls(newPreviewUrls);
       setSelectedFiles(newSelectedFiles);
       
-      onImagesSelected([], newSelectedFiles);
-    } else if (onExistingImagesChange) {
+      handleImagesSelected([], newSelectedFiles);
+    } else if (handleExistingImagesChange) {
       const newExistingImages = existingImages.filter(img => img.id !== imageId);
-      onExistingImagesChange(newExistingImages);
+      handleExistingImagesChange(newExistingImages);
     }
   };
 
