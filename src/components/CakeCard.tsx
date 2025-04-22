@@ -145,7 +145,7 @@ const CakeCard: React.FC<CakeCardProps> = ({ cake, onRatingChange, onCakeUpdate,
       setPreviewUrls(newPreviewUrls);
       setSelectedFiles(newSelectedFiles);
       
-      handleImagesSelected([], newSelectedFiles);
+      handleImagesSelected(newSelectedFiles);
     } else if (handleExistingImagesChange) {
       const newExistingImages = existingImages.filter(img => img.id !== imageId);
       handleExistingImagesChange(newExistingImages);
@@ -351,19 +351,19 @@ const CakeCard: React.FC<CakeCardProps> = ({ cake, onRatingChange, onCakeUpdate,
                 </div>
               </div>
             </CardContent>
-            
-            <CardFooter className="border-t pt-4 flex flex-col items-stretch">
-              {!isOwnCake && (
+
+            {!isOwnCake && (
+              <CardFooter className="border-t pt-4 flex flex-col items-stretch">
                 <div className="flex items-center justify-between w-full mb-2">
                   <span className="font-medium">{t("cakes.rateThis")}</span>
-                  <RatingStars 
-                    value={userRating} 
+                  <RatingStars
+                    value={userRating}
                     onChange={handleRating}
                     disabled={loading}
                   />
                 </div>
-              )}
-            </CardFooter>
+              </CardFooter>
+            )}
           </>
         ) : (
           renderEditMode()
