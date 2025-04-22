@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { User } from "@/types/auth";
 import { Button } from "@/components/ui/button";
@@ -5,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import EmojiPicker from "@/components/EmojiPicker";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import LanguageSelector from "./LanguageSelector";
+import LanguageSelector from "@/components/common/LanguageSelector";
 import { useAuth } from "@/contexts/AuthContext";
 import { format } from "date-fns";
 import { 

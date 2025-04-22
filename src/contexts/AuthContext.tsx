@@ -26,6 +26,7 @@ import { toast } from "@/components/ui/sonner";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { EMOJI_OPTIONS } from "@/constants/emoji-constants";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -35,6 +36,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [error, setError] = useState<string | null>(null);
   const isMobile = useIsMobile();
   const navigate = useNavigate();
+  const { i18n } = useTranslation();
 
   const createUserDocument = async (firebaseUser: any, additionalData = {}) => {
     if (!firebaseUser) return null;
@@ -46,6 +48,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       const { email, displayName, photoURL } = firebaseUser;
       const createdAt = new Date();
       const randomEmoji = EMOJI_OPTIONS[Math.floor(Math.random() * EMOJI_OPTIONS.length)];
+      const currentLanguage = i18n.language.split("-")[0];
       
       try {
         const userData = {
@@ -55,6 +58,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           photoURL: photoURL || null,
           createdAt,
           cakeIds: [],
+          languagePreference: currentLanguage,
           ...additionalData
         };
         
@@ -68,7 +72,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           emojiAvatar: randomEmoji,
           photoURL: photoURL || null,
           createdAt,
-          cakeIds: []
+          cakeIds: [],
+          languagePreference: currentLanguage
         };
       } catch (error) {
         console.error("Error creating user document:", error);
@@ -84,7 +89,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         emojiAvatar: userData.emojiAvatar || "🍰",
         photoURL: firebaseUser.photoURL || userData.photoURL,
         createdAt: userData.createdAt,
-        cakeIds: userData.cakeIds || []
+        cakeIds: userData.cakeIds || [],
+        languagePreference: userData.languagePreference || i18n.language.split("-")[0]
       };
     }
   };
@@ -98,6 +104,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           
           if (userData) {
             setUser(userData);
+            
+            if (userData.languagePreference && userData.languagePreference !== i18n.language) {
+              i18n.changeLanguage(userData.languagePreference);
+            }
+            
             console.log("User authenticated:", userData);
           }
         } else {
@@ -271,6 +282,26 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
+  const updateLanguagePreference = async (language: string) => {
+    if (!user) return false;
+    
+    try {
+      const userRef = doc(firestore, "users", user.id);
+      await updateDoc(userRef, { languagePreference: language });
+      
+      setUser({
+        ...user,
+        languagePreference: language
+      });
+      
+      return true;
+    } catch (err) {
+      console.error("Error updating language preference:", err);
+      toast.error("Failed to update language preference. Please try again.");
+      return false;
+    }
+  };
+
   const value = {
     user,
     loading,
@@ -281,6 +312,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     updateUserAvatar,
     updateDisplayName,
     deleteAccount,
+    updateLanguagePreference,
     error
   };
 

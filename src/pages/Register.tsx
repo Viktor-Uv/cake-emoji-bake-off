@@ -1,156 +1,163 @@
+
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { Link, Navigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTranslation } from "react-i18next";
-import { EMOJI_OPTIONS } from "@/constants/emoji-constants";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import EmojiPicker from "@/components/EmojiPicker";
+import LanguageSelector from "@/components/common/LanguageSelector";
 
-const Register: React.FC = () => {
+const formSchema = z.object({
+  displayName: z.string().min(2, {
+    message: "Display name must be at least 2 characters.",
+  }),
+  email: z.string().email(),
+  password: z.string().min(6),
+  emoji: z.string(),
+});
+
+type FormData = z.infer<typeof formSchema>;
+
+const Register = () => {
   const { t } = useTranslation();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [displayName, setDisplayName] = useState("");
-  const [selectedEmoji, setSelectedEmoji] = useState(
-    EMOJI_OPTIONS[Math.floor(Math.random() * EMOJI_OPTIONS.length)]
-  );
+  const { signUp, user, loading } = useAuth();
+  const [submitting, setSubmitting] = useState(false);
   
-  const { signUp, signInWithGoogle, loading, error } = useAuth();
-  const navigate = useNavigate();
+  const form = useForm<FormData>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      displayName: "",
+      email: "",
+      password: "",
+      emoji: "🍰",
+    },
+  });
 
-  const handleRegister = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      await signUp(email, password, displayName, selectedEmoji);
-      navigate("/profile");
-    } catch (error) {
-      console.error("Registration error:", error);
-    }
+  const onSubmit = async (values: FormData) => {
+    setSubmitting(true);
+    await signUp(
+      values.email, 
+      values.password, 
+      values.displayName,
+      values.emoji
+    );
+    setSubmitting(false);
   };
 
-  const handleGoogleAuth = async () => {
-    try {
-      await signInWithGoogle();
-      navigate("/profile");
-    } catch (error) {
-      console.error("Google authentication error:", error);
-    }
-  };
+  if (user) {
+    return <Navigate to="/profile" />;
+  }
 
   return (
-    <div className="flex justify-center items-center min-h-[70vh]">
-      <Card className="w-full max-w-md">
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl flex items-center justify-center gap-2">
-            <span className="text-3xl">🎂</span>
-            {t("auth.createAccountTitle")}
-          </CardTitle>
-          <CardDescription>
-            {t("auth.createAccountDesc")}
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <form onSubmit={handleRegister} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="displayName">{t("auth.displayName")}</Label>
-              <Input
-                id="displayName"
-                placeholder={t("auth.yourName")}
-                value={displayName}
-                onChange={(e) => setDisplayName(e.target.value)}
-                required
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label>{t("auth.chooseAvatar")}</Label>
-              <div className="flex justify-center">
-                <EmojiPicker
-                  value={selectedEmoji}
-                  onChange={setSelectedEmoji}
-                />
-              </div>
-            </div>
+    <div className="max-w-md mx-auto">
+      <div className="bg-white p-6 rounded-lg shadow-lg">
+        <div className="mb-6 text-center">
+          <h1 className="text-2xl font-bold">{t("auth.createAccountTitle")}</h1>
+          <p className="text-gray-600 mt-1">{t("auth.createAccountDesc")}</p>
+        </div>
+        
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <FormField
+              control={form.control}
+              name="displayName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t("auth.displayName")}</FormLabel>
+                  <FormControl>
+                    <Input 
+                      placeholder={t("auth.yourName")} 
+                      autoComplete="name"
+                      {...field} 
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             
-            <div className="space-y-2">
-              <Label htmlFor="email">{t("auth.email")}</Label>
-              <Input
-                id="email"
-                placeholder="your.email@example.com"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-            </div>
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t("auth.email")}</FormLabel>
+                  <FormControl>
+                    <Input 
+                      placeholder="email@example.com" 
+                      autoComplete="email"
+                      {...field} 
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             
-            <div className="space-y-2">
-              <Label htmlFor="password">{t("auth.password")}</Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                minLength={6}
-              />
-            </div>
+            <FormField
+              control={form.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t("auth.password")}</FormLabel>
+                  <FormControl>
+                    <Input 
+                      type="password" 
+                      placeholder="••••••" 
+                      autoComplete="new-password"
+                      {...field} 
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             
-            {error && (
-              <div className="text-red-500 text-sm">{error}</div>
-            )}
+            <FormField
+              control={form.control}
+              name="emoji"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t("auth.chooseAvatar")}</FormLabel>
+                  <FormControl>
+                    <EmojiPicker
+                      value={field.value}
+                      onChange={field.onChange}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? t("auth.creatingAccount") : t("auth.createAccountButton")}
+            <Button 
+              type="submit" 
+              className="w-full mt-6" 
+              disabled={submitting || loading}
+            >
+              {submitting ? t("auth.creatingAccount") : t("auth.createAccountButton")}
             </Button>
           </form>
-          
-          <div className="relative my-4">
-            <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t"></span>
-            </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-background px-2 text-muted-foreground">
-                {t("auth.orContinueWith")}
-              </span>
-            </div>
-          </div>
-          
-          <div className="grid gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={handleGoogleAuth}
-              disabled={loading}
-            >
-              {t("auth.signInWithGoogle")}
-            </Button>
-          </div>
-        </CardContent>
-        <CardFooter className="flex flex-col">
-          <div className="text-sm text-center text-gray-500 mt-2">
+        </Form>
+        
+        <div className="mt-6 text-center text-sm text-gray-600">
+          <p>
             {t("auth.hasAccount")}{" "}
-            <Button
-              variant="link"
-              className="p-0 h-auto"
-              onClick={() => navigate("/login")}
-            >
+            <Link to="/login" className="text-primary hover:underline">
               {t("auth.signIn")}
-            </Button>
-          </div>
-        </CardFooter>
-      </Card>
+            </Link>
+          </p>
+        </div>
+
+        <div className="mt-4">
+          <LanguageSelector />
+        </div>
+      </div>
     </div>
   );
 };

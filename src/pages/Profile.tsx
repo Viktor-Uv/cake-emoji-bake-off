@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
@@ -9,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
 import UserProfileCard from "@/components/profile/UserProfileCard";
 import UserCakesSection, { SortOption } from "@/components/profile/UserCakesSection";
+import LanguageSelector from "@/components/common/LanguageSelector";
 
 const Profile: React.FC = () => {
   const { user, signOut, loading, updateUserAvatar } = useAuth();
@@ -116,6 +118,10 @@ const Profile: React.FC = () => {
             >
               {t("profile.createAccount")}
             </Button>
+          </div>
+          
+          <div className="mt-8 w-full">
+            <LanguageSelector />
           </div>
         </div>
       </div>

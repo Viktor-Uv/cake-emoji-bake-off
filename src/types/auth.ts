@@ -1,3 +1,4 @@
+
 import {Timestamp} from "firebase/firestore";
 
 export interface User {
@@ -8,6 +9,7 @@ export interface User {
   photoURL: string | null;
   createdAt: Timestamp;
   cakeIds: string[];
+  languagePreference?: string;
 }
 
 export interface AuthContextType {
@@ -20,5 +22,6 @@ export interface AuthContextType {
   updateUserAvatar: (emoji: string) => Promise<boolean>;
   updateDisplayName: (newName: string) => Promise<boolean>;
   deleteAccount: () => Promise<void>;
+  updateLanguagePreference: (language: string) => Promise<boolean>;
   error: string | null;
 }
