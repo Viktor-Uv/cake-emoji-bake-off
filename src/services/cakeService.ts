@@ -1,6 +1,5 @@
 import {
   collection,
-  addDoc,
   updateDoc,
   doc,
   getDocs,
@@ -8,7 +7,7 @@ import {
   query,
   orderBy,
   deleteDoc,
-  Timestamp,
+  Timestamp, setDoc,
 } from "firebase/firestore";
 import {
   ref,
@@ -90,7 +89,7 @@ export async function createCake(
       averageRating: 0,
     };
 
-    await addDoc(collection(firestore, "cakes"), cakeData);
+    await setDoc(cakeRef, cakeData);
 
     return newCakeId;
   } catch (error) {
