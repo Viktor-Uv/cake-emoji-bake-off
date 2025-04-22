@@ -154,7 +154,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         emojiAvatar: emoji,
         photoURL: null,
         createdAt: Timestamp.now(),
-        cakeIds: []
+        cakeIds: [],
+        languagePreference: i18n.language.split("-")[0]
       });
       
       toast.success("Account created successfully!");

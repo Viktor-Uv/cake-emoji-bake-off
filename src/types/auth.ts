@@ -9,7 +9,7 @@ export interface User {
   photoURL: string | null;
   createdAt: Timestamp;
   cakeIds: string[];
-  languagePreference?: string;
+  languagePreference: string;
 }
 
 export interface AuthContextType {
