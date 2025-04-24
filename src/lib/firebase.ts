@@ -1,8 +1,8 @@
-
 import { initializeApp } from "firebase/app";
-import { getAuth, GoogleAuthProvider } from "firebase/auth";
-import { getFirestore } from "firebase/firestore";
-import { getStorage } from "firebase/storage";
+import { getAuth, GoogleAuthProvider, connectAuthEmulator } from "firebase/auth";
+import { getFirestore, connectFirestoreEmulator } from "firebase/firestore";
+import { getStorage, connectStorageEmulator } from "firebase/storage";
+import { isUsingEmulators, getEmulatorHost } from "@/utils/firebase-utils";
 
 // Your web app's Firebase configuration
 // Values should be provided using environment variables
@@ -22,3 +22,19 @@ export const auth = getAuth(app);
 export const firestore = getFirestore(app);
 export const storage = getStorage(app);
 export const googleProvider = new GoogleAuthProvider();
+
+// Connect to emulators when detected
+if (isUsingEmulators()) {
+  // Auth emulator
+  connectAuthEmulator(auth, getEmulatorHost('auth'), { disableWarnings: true });
+  
+  // Firestore emulator - parse URL to get host and port
+  const firestoreUrl = new URL(getEmulatorHost('firestore'));
+  connectFirestoreEmulator(firestore, firestoreUrl.hostname, parseInt(firestoreUrl.port));
+  
+  // Storage emulator - parse URL to get host and port
+  const storageUrl = new URL(getEmulatorHost('storage'));
+  connectStorageEmulator(storage, storageUrl.hostname, parseInt(storageUrl.port));
+
+  console.log("%cUsing Firebase Emulators", "color: red;");
+}
