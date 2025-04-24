@@ -36,7 +36,7 @@ const UserCakesSection: React.FC<UserCakesSectionProps> = ({
     return (
       <div className="flex flex-col items-center justify-center py-12">
         <div className="animate-spin text-4xl mb-4">🍰</div>
-        <p>Loading your cakes...</p>
+        <p>{t("profile.loadingCakes")}</p>
       </div>
     );
   }
