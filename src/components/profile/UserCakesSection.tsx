@@ -1,10 +1,11 @@
 
-import React from "react";
-import { Cake } from "@/types/cake";
-import CakeCard from "@/components/CakeCard";
+import React, { useState } from "react";
+import { CakePreview } from "@/types/cake";
+import CakePreviewCard from "@/components/CakePreviewCard";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { CalendarRange, Star } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 import {
   Select,
   SelectContent,
@@ -12,34 +13,44 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {useTranslation} from "react-i18next";
+import { useTranslation } from "react-i18next";
 
 export type SortOption = "date-desc" | "date-asc" | "rating-desc";
 
-interface UserCakesSectionProps {
-  cakes: Cake[];
-  sortOption: SortOption;
-  onSortChange: (value: SortOption) => void;
-  isLoading: boolean;
-}
-
-const UserCakesSection: React.FC<UserCakesSectionProps> = ({
-  cakes,
-  sortOption,
-  onSortChange,
-  isLoading,
-}) => {
+const UserCakesSection: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const [sortOption, setSortOption] = useState<SortOption>("date-desc");
 
-  if (isLoading) {
-    return (
-      <div className="flex flex-col items-center justify-center py-12">
-        <div className="animate-spin text-4xl mb-4">🍰</div>
-        <p>{t("profile.loadingCakes")}</p>
-      </div>
+  const getSortedCakes = () => {
+    if (!user?.createdCakes) return [];
+
+    const cakes = [...user.createdCakes];
+    switch (sortOption) {
+      case "date-asc":
+        return cakes.reverse(); // Assuming cakes are already sorted by date desc
+      case "rating-desc":
+        return cakes.sort((a, b) => b.averageRating - a.averageRating);
+      case "date-desc":
+      default:
+        return cakes;
+    }
+  };
+
+  const handleCakeUpdated = (updatedCake: CakePreview) => {
+    if (!user) return;
+    const updatedCakes = user.createdCakes.map(cake =>
+      cake.id === updatedCake.id ? updatedCake : cake
     );
-  }
+    // The AuthContext will handle the user update
+  };
+
+  const handleCakeDeleted = (cakeId: string) => {
+    if (!user) return;
+    const updatedCakes = user.createdCakes.filter(cake => cake.id !== cakeId);
+    // The AuthContext will handle the user update
+  };
 
   return (
     <div className="bg-white rounded-lg shadow-md p-6">
@@ -49,7 +60,7 @@ const UserCakesSection: React.FC<UserCakesSectionProps> = ({
         <div className="w-full sm:w-auto">
           <Select
             value={sortOption}
-            onValueChange={(value) => onSortChange(value as SortOption)}
+            onValueChange={(value) => setSortOption(value as SortOption)}
           >
             <SelectTrigger className="w-full sm:w-[180px]">
               <SelectValue placeholder="Sort by" />
@@ -78,10 +89,15 @@ const UserCakesSection: React.FC<UserCakesSectionProps> = ({
         </div>
       </div>
       
-      {cakes.length > 0 ? (
+      {user && user.createdCakes.length > 0 ? (
         <div className="grid grid-cols-1 gap-4">
-          {cakes.map((cake) => (
-            <CakeCard key={cake.id} cake={cake} />
+          {getSortedCakes().map((cake) => (
+            <CakePreviewCard
+              key={cake.id}
+              cake={cake}
+              onCakeUpdated={handleCakeUpdated}
+              onCakeDeleted={handleCakeDeleted}
+            />
           ))}
         </div>
       ) : (

@@ -274,7 +274,6 @@ export async function rateCake(
   currentUser: User,
 ): Promise<void> {
   try {
-    // Get the cake document
     const cakeRef = doc(firestore, "cakes", cakeId);
     const cakeDoc = await getDoc(cakeRef);
 
@@ -324,6 +323,21 @@ export async function rateCake(
       ratings: newRatings,
       averageRating
     });
+
+    // Update the cake preview in user's document
+    const userRef = doc(firestore, "users", currentUser.id);
+    const userDoc = await getDoc(userRef);
+    
+    if (userDoc.exists()) {
+      const userData = userDoc.data();
+      const createdCakes = userData.createdCakes || [];
+      const cakeIndex = createdCakes.findIndex((c: CakePreview) => c.id === cakeId);
+      
+      if (cakeIndex >= 0) {
+        createdCakes[cakeIndex].averageRating = averageRating;
+        await updateDoc(userRef, { createdCakes });
+      }
+    }
   } catch (error) {
     console.error("Error rating cake:", error);
     throw new Error("Failed to rate cake. Please try again.");
@@ -333,7 +347,6 @@ export async function rateCake(
 // Delete a cake
 export async function deleteCake(cakeId: string): Promise<void> {
   try {
-    // Get the cake document
     const cakeRef = doc(firestore, "cakes", cakeId);
     const cakeDoc = await getDoc(cakeRef);
 
@@ -343,6 +356,7 @@ export async function deleteCake(cakeId: string): Promise<void> {
 
     const cakeData = cakeDoc.data();
     const images = cakeData.images || [];
+    const userId = cakeData.createdBy.id;
 
     // Delete all images from Firebase Storage
     for (const image of images) {
@@ -350,15 +364,24 @@ export async function deleteCake(cakeId: string): Promise<void> {
       try {
         await deleteObject(imageRef);
 
-        // Delete thumbnail if it exists
         if (image.thumbnailPath) {
           const thumbnailRef = ref(storage, image.thumbnailPath);
           await deleteObject(thumbnailRef);
         }
       } catch (error) {
         console.error("Error deleting image:", error);
-        // Continue deletion even if an image fails
       }
+    }
+
+    // Delete the cake from user's createdCakes array
+    const userRef = doc(firestore, "users", userId);
+    const userDoc = await getDoc(userRef);
+    
+    if (userDoc.exists()) {
+      const userData = userDoc.data();
+      const createdCakes = userData.createdCakes || [];
+      const updatedCakes = createdCakes.filter((cake: CakePreview) => cake.id !== cakeId);
+      await updateDoc(userRef, { createdCakes: updatedCakes });
     }
 
     // Delete the cake document from Firestore
