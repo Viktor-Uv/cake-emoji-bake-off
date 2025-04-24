@@ -5,12 +5,14 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:emulators": "npm run emulators & npm run dev",
     "build": "vite build",
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
     "preview": "vite preview",
     "publish": "npm run build && firebase deploy --only hosting",
-    "publish:dev": "npm run build && firebase hosting:channel:deploy dev"
+    "publish:dev": "npm run build && firebase hosting:channel:deploy dev",
+    "emulators": "firebase emulators:start --inspect-functions --import ./emulators --export-on-exit ./emulators"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
