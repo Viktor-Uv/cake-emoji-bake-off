@@ -27,3 +27,5 @@ export interface Cake {
   ratings: CakeRating[];
   averageRating: number;
 }
+
+export type CakePreview = Pick<Cake, 'id' | 'title' | 'images' | 'averageRating'>;
