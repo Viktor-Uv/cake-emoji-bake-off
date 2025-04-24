@@ -23,10 +23,7 @@ service cloud.firestore {
       	isDocumentOwner(userDocRef);
 
       allow update: if isSignedIn() &&
-      	(
-        	isDocumentOwner(userDocRef) ||
-          	hasOnlyAffectedFields(['ratings', 'averageRating'])
-        ) &&
+        isDocumentOwner(userDocRef) &&
         hasUnchangedFields(['id', 'email', 'createdAt']);
 
       allow delete: if isSignedIn() &&
@@ -51,7 +48,10 @@ service cloud.firestore {
       allow read: if isSignedIn();
 
       allow update: if isSignedIn() &&
-      	isDocumentOwner(resource.data.createdBy.id) &&
+        (
+        	isDocumentOwner(resource.data.createdBy.id) ||
+          	hasOnlyAffectedFields(['ratings', 'averageRating'])
+        ) &&
         hasUnchangedFields(['id', 'createdBy', 'createdAt']);
 
       allow delete: if isSignedIn() &&
