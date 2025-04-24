@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { EmulatorIndicator } from "@/components/ui/EmulatorIndicator";
 import "@/i18n/i18n";
 
 // Import page components
@@ -26,6 +27,7 @@ const App = () => (
         <TooltipProvider>
           <Toaster />
           <Sonner />
+          <EmulatorIndicator />
           <Routes>
             <Route element={<Layout />}>
               <Route path="/" element={<Index />} />
