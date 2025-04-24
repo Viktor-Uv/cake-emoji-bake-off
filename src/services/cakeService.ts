@@ -79,14 +79,16 @@ export async function createCake(
     const cakeData: Cake = {
       id: newCakeId,
       title,
-      description: description || "", // Default to empty string if no description
-      userId: currentUser.id,
-      userName: currentUser.displayName,
-      userEmoji: currentUser.emojiAvatar,
+      description: description || "",
+      createdBy: {
+        id: currentUser.id,
+        name: currentUser.displayName,
+        emoji: currentUser.emojiAvatar,
+      },
       images: uploadedImages,
       createdAt: Timestamp.now(),
       ratings: [],
-      averageRating: 0,
+      averageRating: 0
     };
 
     await setDoc(cakeRef, cakeData);
