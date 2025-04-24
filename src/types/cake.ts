@@ -19,9 +19,11 @@ export interface Cake {
   id: string;
   title: string;
   description: string;
-  userId: string;
-  userName: string;
-  userEmoji: string;
+  createdBy: {
+    id: string;
+    name: string;
+    emoji: string;
+  };
   images: CakeImage[];
   createdAt: Timestamp;
   ratings: CakeRating[];
