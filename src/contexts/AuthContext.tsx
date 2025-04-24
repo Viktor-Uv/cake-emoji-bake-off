@@ -38,7 +38,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const navigate = useNavigate();
   const { i18n } = useTranslation();
 
-  const createUserDocument = async (firebaseUser: any, additionalData = {}) => {
+  const createUserDocument = async (firebaseUser: any): Promise<User> => {
     if (!firebaseUser) return null;
     
     const userRef = doc(firestore, "users", firebaseUser.uid);
@@ -46,22 +46,22 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     
     if (!userSnap.exists()) {
       const { email, displayName, photoURL } = firebaseUser;
-      const createdAt = new Date();
+      const createdAt = Timestamp.now();
       const randomEmoji = EMOJI_OPTIONS[Math.floor(Math.random() * EMOJI_OPTIONS.length)];
       const currentLanguage = i18n.language.split("-")[0];
       
       try {
-        const userData = {
+        const userData: User = {
+          id: firebaseUser.uid,
           email,
           displayName: displayName,
           emojiAvatar: randomEmoji,
           photoURL: photoURL || null,
           createdAt,
-          cakeIds: [],
-          languagePreference: currentLanguage,
-          ...additionalData
+          createdCakes: [],
+          languagePreference: currentLanguage
         };
-        
+
         await setDoc(userRef, userData);
         
         console.log("User document created successfully!");
@@ -72,7 +72,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           emojiAvatar: randomEmoji,
           photoURL: photoURL || null,
           createdAt,
-          cakeIds: [],
+          createdCakes: [],
           languagePreference: currentLanguage
         };
       } catch (error) {
@@ -81,15 +81,15 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         return null;
       }
     } else {
-      const userData = userSnap.data();
+      const userData: User = userSnap.data() as User;
       return {
         id: firebaseUser.uid,
         email: firebaseUser.email || userData.email,
         displayName: firebaseUser.displayName || userData.displayName,
-        emojiAvatar: userData.emojiAvatar || "🍰",
+        emojiAvatar: userData.emojiAvatar,
         photoURL: firebaseUser.photoURL || userData.photoURL,
         createdAt: userData.createdAt,
-        cakeIds: userData.cakeIds || [],
+        createdCakes: userData.createdCakes || [],
         languagePreference: userData.languagePreference || i18n.language.split("-")[0]
       };
     }
@@ -100,7 +100,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       setLoading(true);
       try {
         if (firebaseUser) {
-          const userData = await createUserDocument(firebaseUser);
+          const userData: User = await createUserDocument(firebaseUser);
           
           if (userData) {
             setUser(userData);
@@ -136,28 +136,20 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         displayName: displayName
       });
       
-      const userData = {
-        displayName, 
-        email, 
-        emojiAvatar: emoji, 
-        createdAt: new Date(),
-        cakeIds: []
-      };
-      
       const userRef = doc(firestore, "users", result.user.uid);
-      await setDoc(userRef, userData);
-      
-      setUser({
-        id: result.user.uid,
+      const userData: User = {
+        id: userRef.id,
         email,
         displayName,
         emojiAvatar: emoji,
         photoURL: null,
         createdAt: Timestamp.now(),
-        cakeIds: [],
+        createdCakes: [],
         languagePreference: i18n.language.split("-")[0]
-      });
+      };
+      await setDoc(userRef, userData);
       
+      setUser(userData);
       toast.success("Account created successfully!");
       navigate('/profile');
     } catch (err: any) {
