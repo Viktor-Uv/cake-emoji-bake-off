@@ -290,14 +290,14 @@ export async function rateCake(
       (r: CakeRating) => r.userId === currentUser.id,
     );
 
-    const newRatings = [...ratings];
+    const newRatings: CakeRating[] = [...ratings];
 
     if (userRatingIndex >= 0) {
       // Update existing rating
       newRatings[userRatingIndex] = {
         userId: currentUser.id,
         rating,
-        timestamp: new Date(),
+        timestamp: Timestamp.now(),
         userName: currentUser.displayName,
         userEmoji: currentUser.emojiAvatar,
       };
@@ -306,7 +306,7 @@ export async function rateCake(
       newRatings.push({
         userId: currentUser.id,
         rating,
-        timestamp: new Date(),
+        timestamp: Timestamp.now(),
         userName: currentUser.displayName,
         userEmoji: currentUser.emojiAvatar,
       });
@@ -322,7 +322,7 @@ export async function rateCake(
     // Update the cake document
     await updateDoc(cakeRef, {
       ratings: newRatings,
-      averageRating,
+      averageRating
     });
   } catch (error) {
     console.error("Error rating cake:", error);
