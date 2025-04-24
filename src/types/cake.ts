@@ -1,3 +1,4 @@
+
 import { Timestamp } from 'firebase/firestore';
 
 export interface CakeImage {
@@ -30,4 +31,10 @@ export interface Cake {
   averageRating: number;
 }
 
-export type CakePreview = Pick<Cake, 'id' | 'title' | 'description' | 'images' | 'averageRating'>;
+export interface CakePreview {
+  id: string;
+  title: string;
+  description: string;
+  images: CakeImage[];
+  averageRating: number;
+}

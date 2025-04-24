@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import DraggableImageGallery from "./DraggableImageGallery";
 import ImageUploader from "./ImageUploader";
-import { updateCake, deleteCake } from "@/services/cakeService";
+import { updateCake, deleteCake, rateCake } from "@/services/cakeService";
 import { useQueryClient } from "@tanstack/react-query";
 
 interface CakePreviewCardProps {
@@ -36,7 +36,7 @@ const CakePreviewCard: React.FC<CakePreviewCardProps> = ({
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [title, setTitle] = useState(cake.title);
-  const [description, setDescription] = useState(cake.description);
+  const [description, setDescription] = useState(cake.description || "");
   const [isDeleting, setIsDeleting] = useState(false);
   const { user } = useAuth();
   const queryClient = useQueryClient();
@@ -47,6 +47,8 @@ const CakePreviewCard: React.FC<CakePreviewCardProps> = ({
       const updatedCake = { ...cake, images: [...cake.images] };
       onCakeUpdated(updatedCake);
       toast.success("Images updated successfully!");
+      // Invalidate query to refresh data
+      queryClient.invalidateQueries({ queryKey: ["cakes"] });
     } catch (error) {
       console.error("Error updating images:", error);
       toast.error("Failed to update images");
@@ -59,6 +61,8 @@ const CakePreviewCard: React.FC<CakePreviewCardProps> = ({
       const updatedCake = { ...cake, images };
       onCakeUpdated(updatedCake);
       toast.success("Images updated successfully!");
+      // Invalidate query to refresh data
+      queryClient.invalidateQueries({ queryKey: ["cakes"] });
     } catch (error) {
       console.error("Error updating images:", error);
       toast.error("Failed to update images");
@@ -72,6 +76,8 @@ const CakePreviewCard: React.FC<CakePreviewCardProps> = ({
       onCakeUpdated(updatedCake);
       setIsEditing(false);
       toast.success("Cake updated successfully!");
+      // Invalidate query to refresh data
+      queryClient.invalidateQueries({ queryKey: ["cakes"] });
     } catch (error) {
       console.error("Error updating cake:", error);
       toast.error("Failed to update cake");
@@ -116,7 +122,7 @@ const CakePreviewCard: React.FC<CakePreviewCardProps> = ({
                   variant="outline"
                   onClick={() => {
                     setTitle(cake.title);
-                    setDescription(cake.description);
+                    setDescription(cake.description || "");
                     setIsEditing(false);
                   }}
                 >
@@ -172,7 +178,11 @@ const CakePreviewCard: React.FC<CakePreviewCardProps> = ({
         <div className="mt-4">
           <DraggableImageGallery
             images={cake.images}
-            onImagesChange={handleExistingImagesChange}
+            onReorder={handleExistingImagesChange}
+            onDelete={(imageId) => {
+              const newImages = cake.images.filter(img => img.id !== imageId);
+              handleExistingImagesChange(newImages);
+            }}
           />
           <ImageUploader onImagesSelected={handleImagesSelected} />
         </div>

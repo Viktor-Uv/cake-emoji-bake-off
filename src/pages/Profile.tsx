@@ -2,9 +2,6 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
-import { collection, query, where, getDocs, orderBy } from "firebase/firestore";
-import { firestore } from "@/lib/firebase";
-import { Cake } from "@/types/cake";
 import { toast } from "@/components/ui/sonner";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
@@ -15,70 +12,7 @@ import LanguageSelector from "@/components/common/LanguageSelector";
 const Profile: React.FC = () => {
   const { user, signOut, loading, updateUserAvatar } = useAuth();
   const { t } = useTranslation();
-  const [userCakes, setUserCakes] = useState<Cake[]>([]);
-  const [sortOption, setSortOption] = useState<SortOption>("date-desc");
-  const [loadingCakes, setLoadingCakes] = useState(false);
   const navigate = useNavigate();
-  
-  useEffect(() => {
-    if (user) {
-      fetchUserCakes(sortOption);
-    }
-  }, [user, sortOption]);
-  
-  const fetchUserCakes = async (sort: SortOption) => {
-    if (!user) return;
-    
-    setLoadingCakes(true);
-    try {
-      let cakesQuery;
-      
-      switch (sort) {
-        case "date-asc":
-          cakesQuery = query(
-            collection(firestore, "cakes"), 
-            where("userId", "==", user.id),
-            orderBy("createdAt", "asc")
-          );
-          break;
-          
-        case "rating-desc":
-          cakesQuery = query(
-            collection(firestore, "cakes"), 
-            where("userId", "==", user.id),
-            orderBy("averageRating", "desc")
-          );
-          break;
-          
-        case "date-desc":
-        default:
-          cakesQuery = query(
-            collection(firestore, "cakes"), 
-            where("userId", "==", user.id),
-            orderBy("createdAt", "desc")
-          );
-          break;
-      }
-      
-      const cakesSnapshot = await getDocs(cakesQuery);
-      const cakesList: Cake[] = [];
-      
-      cakesSnapshot.forEach((doc) => {
-        const cakeData = doc.data() as Cake;
-        cakesList.push({
-          ...cakeData,
-          id: doc.id
-        });
-      });
-      
-      setUserCakes(cakesList);
-    } catch (error) {
-      console.error("Error fetching user cakes:", error);
-      toast.error("Failed to load your cakes. Please try again.");
-    } finally {
-      setLoadingCakes(false);
-    }
-  };
 
   const handleAvatarChange = async (emoji: string) => {
     await updateUserAvatar(emoji);
@@ -140,12 +74,7 @@ const Profile: React.FC = () => {
         </div>
         
         <div className="w-full md:w-2/3">
-          <UserCakesSection
-            cakes={userCakes}
-            sortOption={sortOption}
-            onSortChange={setSortOption}
-            isLoading={loadingCakes}
-          />
+          <UserCakesSection />
         </div>
       </div>
     </div>

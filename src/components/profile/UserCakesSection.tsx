@@ -1,6 +1,5 @@
 
 import React, { useState } from "react";
-import { CakePreview } from "@/types/cake";
 import CakePreviewCard from "@/components/CakePreviewCard";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -14,13 +13,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useTranslation } from "react-i18next";
+import { CakePreview } from "@/types/cake";
 
 export type SortOption = "date-desc" | "date-asc" | "rating-desc";
 
 const UserCakesSection: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, updateUser } = useAuth();
   const [sortOption, setSortOption] = useState<SortOption>("date-desc");
 
   const getSortedCakes = () => {
@@ -43,13 +43,13 @@ const UserCakesSection: React.FC = () => {
     const updatedCakes = user.createdCakes.map(cake =>
       cake.id === updatedCake.id ? updatedCake : cake
     );
-    // The AuthContext will handle the user update
+    updateUser({ ...user, createdCakes: updatedCakes });
   };
 
   const handleCakeDeleted = (cakeId: string) => {
     if (!user) return;
     const updatedCakes = user.createdCakes.filter(cake => cake.id !== cakeId);
-    // The AuthContext will handle the user update
+    updateUser({ ...user, createdCakes: updatedCakes });
   };
 
   return (

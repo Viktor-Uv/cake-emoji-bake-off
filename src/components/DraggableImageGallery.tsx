@@ -14,17 +14,19 @@ import {
 import { SortableContext, rectSortingStrategy, useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { useTranslation } from "react-i18next";
+import { CakeImage } from "@/types/cake";
 
 interface DraggableImageGalleryProps {
-  images: Array<{url: string, id: string}>;
-  onReorder: (newOrder: Array<{url: string, id: string}>) => void;
+  images: CakeImage[];
+  onReorder: (newOrder: CakeImage[]) => void;
   onDelete: (imageId: string) => void;
   minImages?: number;
   showDeleteConfirmation?: boolean;
+  onImagesChange?: (images: CakeImage[]) => void; // Added this prop
 }
 
 const SortableImage = ({ image, onDelete, canDelete }: { 
-  image: {url: string, id: string}, 
+  image: CakeImage, 
   onDelete: (id: string) => void,
   canDelete: boolean 
 }) => {
@@ -78,6 +80,7 @@ const DraggableImageGallery: React.FC<DraggableImageGalleryProps> = ({
   onReorder,
   onDelete,
   minImages = 1,
+  onImagesChange, // Added this prop usage
 }) => {
   const { t } = useTranslation();
   
@@ -111,6 +114,11 @@ const DraggableImageGallery: React.FC<DraggableImageGalleryProps> = ({
       newImages.splice(newIndex, 0, movedItem);
       
       onReorder(newImages);
+      
+      // Also call onImagesChange if it exists
+      if (onImagesChange) {
+        onImagesChange(newImages);
+      }
     }
   };
 

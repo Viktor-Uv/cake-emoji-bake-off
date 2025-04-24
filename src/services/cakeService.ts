@@ -16,7 +16,7 @@ import {
   deleteObject,
 } from "firebase/storage";
 import {firestore, storage} from "@/lib/firebase";
-import {Cake, CakeImage, CakeRating} from "@/types/cake";
+import {Cake, CakeImage, CakeRating, CakePreview} from "@/types/cake";
 import {User} from "@/types/auth";
 import {processImage} from "@/utils/imageProcessor";
 
@@ -107,7 +107,7 @@ export async function updateCake(
   description: string | undefined,
   newImages?: File[],
   existingImages?: CakeImage[],
-): Promise<void> {
+): Promise<CakePreview> {
   try {
     const cakeRef = doc(firestore, "cakes", cakeId);
     const cakeDoc = await getDoc(cakeRef);
@@ -173,8 +173,8 @@ export async function updateCake(
         const url = await getDownloadURL(imageRef);
 
         // Handle thumbnail if available
-        let thumbnailUrl: string | null;
-        let thumbnailPath: string | null;
+        let thumbnailUrl: string | null = null;
+        let thumbnailPath: string | null = null;
 
         if (thumbnail) {
           thumbnailPath = `cakes/${cakeDoc.data().userId}/${Date.now()}_${i}_${thumbnail.name}`;
@@ -209,6 +209,15 @@ export async function updateCake(
     }
 
     await updateDoc(cakeRef, updateData);
+    
+    // Return the updated cake preview for UI updates
+    return {
+      id: cakeId,
+      title,
+      description: description || "",
+      images: updateData.images,
+      averageRating: cakeDoc.data().averageRating || 0,
+    };
   } catch (error) {
     console.error("Error updating cake:", error);
     throw new Error("Failed to update cake. Please try again.");
@@ -272,7 +281,7 @@ export async function rateCake(
   cakeId: string,
   rating: number,
   currentUser: User,
-): Promise<void> {
+): Promise<number> {
   try {
     const cakeRef = doc(firestore, "cakes", cakeId);
     const cakeDoc = await getDoc(cakeRef);
@@ -323,6 +332,9 @@ export async function rateCake(
       ratings: newRatings,
       averageRating
     });
+    
+    // Return the new average rating for immediate UI updates
+    return averageRating;
   } catch (error) {
     console.error("Error rating cake:", error);
     throw new Error("Failed to rate cake. Please try again.");
@@ -341,7 +353,6 @@ export async function deleteCake(cakeId: string): Promise<void> {
 
     const cakeData = cakeDoc.data();
     const images = cakeData.images || [];
-    const userId = cakeData.createdBy.id;
 
     // Delete all images from Firebase Storage
     for (const image of images) {
