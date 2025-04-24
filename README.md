@@ -59,6 +59,56 @@ This project is built with:
 - React
 - shadcn-ui
 - Tailwind CSS
+- Firebase (Authentication, Firestore, Storage)
+
+## Using Firebase Emulators
+
+This project supports Firebase emulators for local development. Emulators allow you to develop and test your application without connecting to the production Firebase services.
+
+### Starting the Emulators
+
+To start the Firebase emulators, you need to have the Firebase CLI installed:
+
+```sh
+# Install Firebase CLI globally if you don't have it
+npm install -g firebase-tools
+
+# Login to Firebase (only needed once)
+firebase login
+
+# Start the emulators
+firebase emulators:start
+```
+
+### Configuring the Application to Use Emulators
+
+The application is configured to automatically connect to emulators in development mode. You can control this behavior with environment variables:
+
+1. Create a `.env.local` file in the root of your project with the following content:
+
+```
+# Set to "true" to force using emulators, "false" to disable them
+VITE_USE_FIREBASE_EMULATORS=true
+```
+
+2. By default, in development mode (`npm run dev`), the application will connect to emulators unless explicitly disabled.
+
+3. In production builds, emulators are disabled by default.
+
+### Emulator Ports
+
+The following emulators are configured:
+
+- Authentication: http://localhost:9099
+- Firestore: http://localhost:8080
+- Storage: http://localhost:9199
+- Functions: http://localhost:5001
+- Hosting: http://localhost:5000
+- Emulator UI: http://localhost:4000
+
+### Visual Indicator
+
+When using emulators in development mode, a red "Firebase Emulators Active" indicator will appear in the bottom right corner of the application.
 
 ## How can I deploy this project?
 
@@ -71,3 +121,4 @@ Yes, you can!
 To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
 
 Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+
