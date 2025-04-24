@@ -1,5 +1,6 @@
 
 import {Timestamp} from "firebase/firestore";
+import {CakePreview} from "@/types/cake.ts";
 
 export interface User {
   id: string;
@@ -8,7 +9,7 @@ export interface User {
   emojiAvatar: string;
   photoURL: string | null;
   createdAt: Timestamp;
-  cakeIds: string[];
+  createdCakes: CakePreview[];
   languagePreference: string;
 }
 
