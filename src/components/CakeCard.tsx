@@ -41,7 +41,7 @@ const CakeCard: React.FC<CakeCardProps> = ({ cake, onRatingChange, onCakeUpdate,
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
 
   const userRating = cake.ratings?.find((r) => r.userId === user?.id)?.rating || 0;
-  const isOwnCake = user?.id === cake.userId;
+  const isOwnCake = user?.id === cake.createdBy.id;
   
   const handleRating = async (rating: number) => {
     if (!user) {
@@ -242,8 +242,8 @@ const CakeCard: React.FC<CakeCardProps> = ({ cake, onRatingChange, onCakeUpdate,
         <CardHeader className="pb-2">
           <div className="flex justify-between items-center">
             <div className="flex items-center space-x-2">
-              <span className="text-2xl">{cake.userEmoji}</span>
-              <span className="font-medium">{cake.userName || t("cakes.anonymous")}</span>
+              <span className="text-2xl">{cake.createdBy.emoji}</span>
+              <span className="font-medium">{cake.createdBy.name}</span>
             </div>
             <div className="flex items-center gap-2">
               {isOwnCake && !isEditing && (
