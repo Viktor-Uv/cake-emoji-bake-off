@@ -136,6 +136,7 @@ const en = {
   errors: {
     validation: {
       auth: {
+        name: "Display name must be at least 2 characters long",
         email: "Email is required",
         password: "Password must be at least 6 characters long"
       },
@@ -280,6 +281,7 @@ const ua = {
   errors: {
     validation: {
       auth: {
+        name: "Ім’я профілю має бути не менше 2 символів",
         email: "Електронна пошта обов'язкова",
         password: "Пароль повинен містити не менше 6 символів"
       },

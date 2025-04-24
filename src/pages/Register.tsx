@@ -12,21 +12,19 @@ import { useTranslation } from "react-i18next";
 import EmojiPicker from "@/components/EmojiPicker";
 import LanguageSelector from "@/components/common/LanguageSelector";
 
-const formSchema = z.object({
-  displayName: z.string().min(2, {
-    message: "Display name must be at least 2 characters.",
-  }),
-  email: z.string().email(),
-  password: z.string().min(6),
-  emoji: z.string(),
-});
-
-type FormData = z.infer<typeof formSchema>;
-
 const Register = () => {
   const { t } = useTranslation();
   const { signUp, user, loading } = useAuth();
   const [submitting, setSubmitting] = useState(false);
+
+  const formSchema = z.object({
+    displayName: z.string().min(2, t("errors.validation.auth.name")),
+    email: z.string().email(t("errors.validation.auth.email")),
+    password: z.string().min(6, t("errors.validation.auth.password")),
+    emoji: z.string(),
+  });
+
+  type FormData = z.infer<typeof formSchema>;
   
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
