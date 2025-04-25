@@ -20,7 +20,7 @@ export type SortOption = "date-desc" | "date-asc" | "rating-desc";
 const UserCakesSection: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { user, updateUser } = useAuth();
+  const { user } = useAuth();
   const [sortOption, setSortOption] = useState<SortOption>("date-desc");
 
   const getSortedCakes = () => {
@@ -43,13 +43,11 @@ const UserCakesSection: React.FC = () => {
     const updatedCakes = user.createdCakes.map(cake =>
       cake.id === updatedCake.id ? updatedCake : cake
     );
-    updateUser({ ...user, createdCakes: updatedCakes });
   };
 
   const handleCakeDeleted = (cakeId: string) => {
     if (!user) return;
     const updatedCakes = user.createdCakes.filter(cake => cake.id !== cakeId);
-    updateUser({ ...user, createdCakes: updatedCakes });
   };
 
   return (

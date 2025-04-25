@@ -5,9 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "dev:emulators": "npm run emulators & npm run dev",
+    "dev:emulators": "npm run build:functions & npm run emulators & npm run dev",
     "build": "vite build",
     "build:dev": "vite build --mode development",
+    "build:functions": "npm --prefix functions run build",
     "lint": "eslint .",
     "preview": "vite preview",
     "publish": "npm run build && firebase deploy --only hosting",
