@@ -7,7 +7,7 @@ export const isUsingEmulators = (): boolean => {
 export const getEmulatorHost = (service: 'auth' | 'firestore' | 'storage' | 'functions'): string => {
   const portMap: Record<string, number> = {
     auth: 9099,
-    firestore: 8081,
+    firestore: 8080,
     storage: 9199,
     functions: 5001
   };
