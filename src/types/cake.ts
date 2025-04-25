@@ -31,4 +31,4 @@ export interface Cake {
   averageRating: number;
 }
 
-export type CakePreview = Pick<Cake, 'id' | 'title' | 'description' | 'images' | 'averageRating'>;
+export type CakePreview = Pick<Cake, 'id' | 'title' | 'description' | 'images' | 'averageRating' | 'createdAt'>;
