@@ -1,16 +1,16 @@
-
 import React, { useState, useRef, ChangeEvent } from "react";
 import { Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/sonner";
 import DraggableImageGallery from "./DraggableImageGallery";
 import {useTranslation} from "react-i18next";
+import { CakeImage } from "@/types/cake";
 
 interface ImageUploaderProps {
   onImagesSelected: (images: File[], orderedImages: File[]) => void;
   maxImages?: number;
-  existingImages?: Array<{id: string, url: string}>;
-  onExistingImagesChange?: (images: Array<{id: string, url: string}>) => void;
+  existingImages?: CakeImage[];
+  onExistingImagesChange?: (images: CakeImage[]) => void;
 }
 
 const ImageUploader: React.FC<ImageUploaderProps> = ({
@@ -25,11 +25,13 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   // Create a merged array of all images (existing + new) for display
-  const allImages = [
+  const allImages: CakeImage[] = [
     ...existingImages,
     ...previewUrls.map((url, index) => ({
       id: `new-${index}`,
-      url
+      url,
+      thumbnailUrl: null,
+      thumbnailPath: null
     }))
   ];
 
@@ -70,9 +72,9 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
     }
   };
   
-  const handleReorder = (newOrder: Array<{url: string, id: string}>) => {
+  const handleReorder = (newOrder: CakeImage[]) => {
     // Split the reordered array back into existing and new images
-    const newExistingImages: Array<{id: string, url: string}> = [];
+    const newExistingImages: CakeImage[] = [];
     const newPreviewUrls: string[] = [];
     const newSelectedFiles: File[] = [];
     
