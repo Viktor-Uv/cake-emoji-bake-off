@@ -120,7 +120,17 @@ const TopRated: React.FC = () => {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {topCakes.map((cake) => (
-            <CakeCard key={cake.id} cake={cake} />
+            <CakeCard 
+              key={cake.id} 
+              cake={cake} 
+              onRatingChange={() => {
+              }}
+              onCakeUpdate={() => {
+              }}
+              onCakeDelete={() => {
+                setTopCakes(topCakes.filter(c => c.id !== cake.id));
+              }}
+            />
           ))}
         </div>
       )}

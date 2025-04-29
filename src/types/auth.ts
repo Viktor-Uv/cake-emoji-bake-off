@@ -1,17 +1,4 @@
-
-import {Timestamp} from "firebase/firestore";
-import {CakePreview} from "@/types/cake.ts";
-
-export interface User {
-  id: string;
-  email: string;
-  displayName: string;
-  emojiAvatar: string;
-  photoURL: string | null;
-  createdAt: Timestamp;
-  createdCakes: CakePreview[];
-  languagePreference: string;
-}
+import {User} from "@/types/user.ts";
 
 export interface AuthContextType {
   user: User | null;

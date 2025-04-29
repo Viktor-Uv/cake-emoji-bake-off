@@ -1,17 +1,18 @@
 import { Cake, CakePreview } from '../types/cake';
 import {updateCreatedCakes, getUserById} from "../repositories/userRepository";
 import { logger } from "firebase-functions";
+import {User} from "../types/user";
 
 export async function handleCakeCreation(cake: Cake): Promise<void> {
   const userId = cake.createdBy.id;
 
-  const user = await getUserById(userId);
+  const user: User | null = await getUserById(userId);
   if (!user) {
     logger.warn(`User with ID ${userId} not found`);
     throw new Error('User not found');
   }
 
-  const userCreatedCakes = user.createdCakes;
+  const userCreatedCakes: CakePreview[] = user.createdCakes;
   const cakeExists = userCreatedCakes.some(cakePreview => cakePreview.id === cake.id);
   if (cakeExists) {
     logger.warn(`Cake with ID ${cake.id} already exists for user ${userId}`);
@@ -31,6 +32,7 @@ function getCakePreview(cake: Cake): CakePreview {
     title: cake.title,
     description: cake.description,
     images: cake.images,
-    averageRating: cake.averageRating
+    createdAt: cake.createdAt,
+    ratingSummary: cake.ratingSummary
   };
 }

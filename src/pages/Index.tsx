@@ -151,7 +151,17 @@ const Index: React.FC = () => {
     <div className="container mx-auto p-4">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {cakes.map((cake) => (
-          <CakeCard key={cake.id} cake={cake} />
+          <CakeCard 
+            key={cake.id} 
+            cake={cake} 
+            onRatingChange={() => {
+            }}
+            onCakeUpdate={() => {
+            }}
+            onCakeDelete={() => {
+              setCakes(cakes.filter(c => c.id !== cake.id));
+            }}
+          />
         ))}
       </div>
     </div>

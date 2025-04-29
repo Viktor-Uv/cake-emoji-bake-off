@@ -1,4 +1,5 @@
 import { Timestamp } from 'firebase-admin/firestore';
+import { EntityCreator } from "./user";
 
 export interface CakeImage {
   id: string;
@@ -11,23 +12,22 @@ export interface CakeRating {
   userId: string;
   rating: number; // 1-5
   timestamp: Timestamp;
-  userName: string;
-  userEmoji: string;
 }
 
 export interface Cake {
   id: string;
   title: string;
   description: string;
-  createdBy: {
-    id: string;
-    name: string;
-    emoji: string;
-  };
+  createdBy: EntityCreator;
   images: CakeImage[];
   createdAt: Timestamp;
   ratings: CakeRating[];
-  averageRating: number;
+  ratingSummary: RatingSummary;
 }
 
-export type CakePreview = Pick<Cake, 'id' | 'title' | 'description' | 'images' | 'averageRating' | 'createdAt'>;
+export type CakePreview = Omit<Cake, 'createdBy' | 'ratings'>;
+
+export type RatingSummary = {
+  count: number;
+  average: number;
+};

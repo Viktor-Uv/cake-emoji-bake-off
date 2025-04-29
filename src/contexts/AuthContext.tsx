@@ -21,7 +21,8 @@ import {
   Timestamp
 } from "firebase/firestore";
 import { auth, firestore, googleProvider } from "@/lib/firebase";
-import { AuthContextType, User } from "@/types/auth";
+import { AuthContextType } from "@/types/auth";
+import { User } from "@/types/user";
 import { toast } from "@/components/ui/sonner";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { EMOJI_OPTIONS } from "@/constants/emoji-constants";
@@ -40,16 +41,16 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const createUserDocument = async (firebaseUser: any): Promise<User> => {
     if (!firebaseUser) return null;
-    
+
     const userRef = doc(firestore, "users", firebaseUser.uid);
     const userSnap = await getDoc(userRef);
-    
+
     if (!userSnap.exists()) {
       const { email, displayName, photoURL } = firebaseUser;
       const createdAt = Timestamp.now();
       const randomEmoji = EMOJI_OPTIONS[Math.floor(Math.random() * EMOJI_OPTIONS.length)];
       const currentLanguage = i18n.language.split("-")[0];
-      
+
       try {
         const userData: User = {
           id: firebaseUser.uid,
@@ -63,7 +64,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         };
 
         await setDoc(userRef, userData);
-        
+
         console.log("User document created successfully!");
         return {
           id: firebaseUser.uid,
@@ -101,14 +102,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       try {
         if (firebaseUser) {
           const userData: User = await createUserDocument(firebaseUser);
-          
+
           if (userData) {
             setUser(userData);
-            
+
             if (userData.languagePreference && userData.languagePreference !== i18n.language) {
               i18n.changeLanguage(userData.languagePreference);
             }
-            
+
             console.log("User authenticated:", userData);
           }
         } else {
@@ -129,13 +130,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     try {
       setLoading(true);
       setError(null);
-      
+
       const result = await createUserWithEmailAndPassword(auth, email, password);
-      
+
       await updateProfile(result.user, {
         displayName: displayName
       });
-      
+
       const userRef = doc(firestore, "users", result.user.uid);
       const userData: User = {
         id: userRef.id,
@@ -148,7 +149,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         languagePreference: i18n.language.split("-")[0]
       };
       await setDoc(userRef, userData);
-      
+
       setUser(userData);
       toast.success("Account created successfully!");
       navigate('/profile');
@@ -182,9 +183,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       setLoading(true);
       setError(null);
       const result = await signInWithPopup(auth, googleProvider);
-      
+
       await createUserDocument(result.user);
-      
+
       toast.success("Signed in with Google successfully!");
       navigate('/profile');
     } catch (err: any) {
@@ -209,16 +210,16 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const updateUserAvatar = async (emoji: string) => {
     if (!user) return;
-    
+
     try {
       const userRef = doc(firestore, "users", user.id);
       await updateDoc(userRef, { emojiAvatar: emoji });
-      
+
       setUser({
         ...user,
         emojiAvatar: emoji
       });
-      
+
       toast.success("Avatar updated successfully!");
       return true;
     } catch (err) {
@@ -230,20 +231,20 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const updateDisplayName = async (newName: string) => {
     if (!user || !auth.currentUser) return false;
-    
+
     try {
       await updateProfile(auth.currentUser, {
         displayName: newName
       });
-      
+
       const userRef = doc(firestore, "users", user.id);
       await updateDoc(userRef, { displayName: newName });
-      
+
       setUser({
         ...user,
         displayName: newName
       });
-      
+
       toast.success("Display name updated successfully!");
       return true;
     } catch (err) {
@@ -255,18 +256,18 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const deleteAccount = async () => {
     if (!user || !auth.currentUser) return;
-    
+
     try {
       const cakesQuery = query(collection(firestore, "cakes"), where("userId", "==", user.id));
       const cakesSnapshot = await getDocs(cakesQuery);
-      
+
       const deletionPromises = cakesSnapshot.docs.map(doc => deleteDoc(doc.ref));
       await Promise.all(deletionPromises);
-      
+
       await deleteDoc(doc(firestore, "users", user.id));
-      
+
       await deleteUser(auth.currentUser);
-      
+
       toast.success("Account deleted successfully.");
       navigate('/');
     } catch (err) {
@@ -277,16 +278,16 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const updateLanguagePreference = async (language: string) => {
     if (!user) return false;
-    
+
     try {
       const userRef = doc(firestore, "users", user.id);
       await updateDoc(userRef, { languagePreference: language });
-      
+
       setUser({
         ...user,
         languagePreference: language
       });
-      
+
       return true;
     } catch (err) {
       console.error("Error updating language preference:", err);

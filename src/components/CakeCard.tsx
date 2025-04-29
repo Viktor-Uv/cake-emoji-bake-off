@@ -1,5 +1,5 @@
 
-import React, {useRef, useState} from "react";
+import React, {useRef, useState, useEffect} from "react";
 import { format } from "date-fns";
 import { useTranslation } from "react-i18next";
 import { Cake, CakeImage } from "@/types/cake";
@@ -16,6 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import ImageUploader from "@/components/ImageUploader";
 import { Pencil, Trash2 } from "lucide-react";
+import { Timestamp } from "firebase/firestore";
 
 interface CakeCardProps {
   cake: Cake;
@@ -24,13 +25,14 @@ interface CakeCardProps {
   onCakeDelete?: () => void;
 }
 
-const CakeCard: React.FC<CakeCardProps> = ({ cake, onRatingChange, onCakeUpdate, onCakeDelete }) => {
+const CakeCard: React.FC<CakeCardProps> = ({ cake: initialCake, onRatingChange, onCakeUpdate, onCakeDelete }) => {
   const dialogCarouselApi = useRef<any>(null);
   const { t } = useTranslation();
   const { user } = useAuth();
   const [isImageOpen, setIsImageOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [cake, setCake] = useState<Cake>(initialCake);
   const [editedTitle, setEditedTitle] = useState(cake.title);
   const [editedDescription, setEditedDescription] = useState(cake.description);
   const [selectedImages, setSelectedImages] = useState<File[]>([]);
@@ -39,6 +41,14 @@ const CakeCard: React.FC<CakeCardProps> = ({ cake, onRatingChange, onCakeUpdate,
   const [dialogActiveIndex, setDialogActiveIndex] = useState(0);
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+
+  // Update local state when the initial cake prop changes
+  useEffect(() => {
+    setCake(initialCake);
+    setEditedTitle(initialCake.title);
+    setEditedDescription(initialCake.description);
+    setExistingImages(initialCake.images);
+  }, [initialCake]);
 
   const userRating = cake.ratings?.find((r) => r.userId === user?.id)?.rating || 0;
   const isOwnCake = user?.id === cake.createdBy.id;
@@ -56,7 +66,52 @@ const CakeCard: React.FC<CakeCardProps> = ({ cake, onRatingChange, onCakeUpdate,
     
     try {
       setLoading(true);
-      await rateCake(cake.id, rating, user);
+      
+      // Store the previous state for rollback in case of error
+      const previousRatings = [...cake.ratings];
+      const previousRatingSummary = {...cake.ratingSummary};
+      
+      // Optimistically update the UI
+      const userRatingIndex = cake.ratings.findIndex(r => r.userId === user.id);
+      const newRatings = [...cake.ratings];
+      
+      if (userRatingIndex >= 0) {
+        // Update existing rating
+        newRatings[userRatingIndex] = {
+          ...newRatings[userRatingIndex],
+          rating,
+          timestamp: Timestamp.now()
+        };
+      } else {
+        // Add new rating
+        newRatings.push({
+          userId: user.id,
+          rating,
+          timestamp: Timestamp.now()
+        });
+      }
+      
+      // Calculate new average and count
+      const ratingSum = newRatings.reduce((total, r) => total + r.rating, 0);
+      const ratingCount = newRatings.length;
+      const averageRating = ratingSum / ratingCount;
+      
+      // Update local state
+      const updatedCake = {
+        ...cake,
+        ratings: newRatings,
+        ratingSummary: {
+          count: ratingCount,
+          average: averageRating
+        }
+      };
+      
+      // Update the UI immediately
+      setCake(updatedCake);
+      
+      // Then update the backend
+      const ratingSummary = await rateCake(cake.id, rating, user);
+      
       toast.success("Cake rated successfully!");
       
       if (onRatingChange) {
@@ -65,6 +120,11 @@ const CakeCard: React.FC<CakeCardProps> = ({ cake, onRatingChange, onCakeUpdate,
     } catch (error) {
       console.error("Error rating cake:", error);
       toast.error("Failed to rate cake. Please try again.");
+      
+      // Rollback to previous state if there was an error
+      setCake({
+        ...cake
+      });
     } finally {
       setLoading(false);
     }
@@ -99,6 +159,22 @@ const CakeCard: React.FC<CakeCardProps> = ({ cake, onRatingChange, onCakeUpdate,
         thumbnailPath: img.thumbnailPath
       }));
       
+      // Store the previous state for rollback in case of error
+      const previousTitle = cake.title;
+      const previousDescription = cake.description;
+      const previousImages = [...cake.images];
+      
+      // Update local state immediately
+      const updatedCake = {
+        ...cake,
+        title: editedTitle,
+        description: editedDescription,
+        images: formattedExistingImages
+      };
+      
+      setCake(updatedCake);
+      
+      // Then update the backend
       await updateCake(
         cake.id,
         editedTitle,
@@ -115,6 +191,18 @@ const CakeCard: React.FC<CakeCardProps> = ({ cake, onRatingChange, onCakeUpdate,
     } catch (error) {
       console.error("Error updating cake:", error);
       toast.error("Failed to update cake. Please try again.");
+      
+      // Rollback to previous state if there was an error
+      setCake({
+        ...cake,
+        title: cake.title,
+        description: cake.description,
+        images: cake.images
+      });
+      
+      setEditedTitle(cake.title);
+      setEditedDescription(cake.description);
+      setExistingImages(cake.images);
     } finally {
       setLoading(false);
     }
@@ -340,12 +428,12 @@ const CakeCard: React.FC<CakeCardProps> = ({ cake, onRatingChange, onCakeUpdate,
               <div className="mt-4 flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <RatingStars 
-                    value={cake.averageRating} 
+                    value={cake.ratingSummary.average}
                     readOnly 
                     size="small"
                   />
                   <span className="text-sm text-gray-600">
-                    {cake.averageRating.toFixed(1)}{" "}
+                    {cake.ratingSummary.average.toFixed(1)}{" "}
                     ({cake.ratings?.length || 0}{" "}
                     {cake.ratings?.length % 10 === 1 ? t("cakes.ratingSingular") :
                       cake.ratings?.length % 10 >=2 && cake.ratings?.length % 10 <= 4 ? t("cakes.ratingPluralAlt") :

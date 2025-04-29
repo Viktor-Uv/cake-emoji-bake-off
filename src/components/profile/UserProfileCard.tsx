@@ -1,6 +1,6 @@
 
 import React, { useState } from "react";
-import { User } from "@/types/auth";
+import { User } from "@/types/user";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import EmojiPicker from "@/components/EmojiPicker";

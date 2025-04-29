@@ -7,10 +7,10 @@ service cloud.firestore {
     }
 
     match /users/{userDocRef} {
-    	allow create: if docIdEqualsDocRef(userDocRef) &&
+      allow create: if docIdEqualsDocRef(userDocRef) &&
         hasFields([
-        	'id',
-        	'email',
+          'id',
+          'email',
           'displayName',
           'emojiAvatar',
           'photoURL',
@@ -20,14 +20,14 @@ service cloud.firestore {
         ]);
 
       allow read: if isSignedIn() &&
-      	isDocumentOwner(userDocRef);
+        isDocumentOwner(userDocRef);
 
       allow update: if isSignedIn() &&
         isDocumentOwner(userDocRef) &&
         hasUnchangedFields(['id', 'email', 'createdAt']);
 
       allow delete: if isSignedIn() &&
-      	isDocumentOwner(userDocRef);
+        isDocumentOwner(userDocRef);
   	}
 
     match /cakes/{cakeDocRef} {
@@ -35,27 +35,27 @@ service cloud.firestore {
       	docIdEqualsDocRef(cakeDocRef) &&
       	isDocumentOwner(request.resource.data.createdBy.id) &&
         hasFields([
-        	'id',
-        	'title',
+          'id',
+          'title',
           'description',
           'createdBy',
           'images',
           'createdAt',
           'ratings',
-          'averageRating'
+          'ratingSummary'
         ]);
 
       allow read: if isSignedIn();
 
       allow update: if isSignedIn() &&
         (
-        	isDocumentOwner(resource.data.createdBy.id) ||
-          	hasOnlyAffectedFields(['ratings', 'averageRating'])
+          isDocumentOwner(resource.data.createdBy.id) ||
+          hasOnlyAffectedFields(['ratings', 'ratingSummary'])
         ) &&
         hasUnchangedFields(['id', 'createdBy', 'createdAt']);
 
       allow delete: if isSignedIn() &&
-      	isDocumentOwner(resource.data.createdBy.id);
+        isDocumentOwner(resource.data.createdBy.id);
   	}
 	}
 

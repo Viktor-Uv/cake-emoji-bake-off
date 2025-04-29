@@ -16,8 +16,8 @@ import {
   deleteObject,
 } from "firebase/storage";
 import {firestore, storage} from "@/lib/firebase";
-import {Cake, CakeImage, CakeRating, CakePreview} from "@/types/cake";
-import {User} from "@/types/auth";
+import {Cake, CakeImage, CakeRating, CakePreview, RatingSummary} from "@/types/cake";
+import {User} from "@/types/user";
 import {processImage} from "@/utils/imageProcessor";
 
 const cakesCollection = collection(firestore, "cakes");
@@ -88,7 +88,10 @@ export async function createCake(
       images: uploadedImages,
       createdAt: Timestamp.now(),
       ratings: [],
-      averageRating: 0
+      ratingSummary: {
+        count: 0,
+        average: 0
+      }
     };
 
     await setDoc(cakeRef, cakeData);
@@ -116,13 +119,15 @@ export async function updateCake(
       throw new Error("Cake not found");
     }
 
+    const cake = cakeDoc.data() as Cake;
+
     const updateData: any = {
       title,
       description: description || "", // Default to empty string if no description
     };
 
     // Get all current images from the document
-    const currentImages = cakeDoc.data().images || [];
+    const currentImages = cake.images || [];
 
     // First, handle existing images
     let imagesToKeep: CakeImage[] = [];
@@ -166,7 +171,7 @@ export async function updateCake(
         // Process image to webp format
         const {mainImage, thumbnail} = await processImage(image);
 
-        const imagePath = `cakes/${cakeDoc.data().id}/${Date.now()}_${mainImage.name}`;
+        const imagePath = `cakes/${cake.id}/${Date.now()}_${mainImage.name}`;
         const imageRef = ref(storage, imagePath);
 
         await uploadBytes(imageRef, mainImage);
@@ -177,7 +182,7 @@ export async function updateCake(
         let thumbnailPath: string | null = null;
 
         if (thumbnail) {
-          thumbnailPath = `cakes/${cakeDoc.data().userId}/${Date.now()}_${i}_${thumbnail.name}`;
+          thumbnailPath = `cakes/${cake.id}/${Date.now()}_${thumbnail.name}`;
           const thumbnailRef = ref(storage, thumbnailPath);
 
           // Upload the thumbnail
@@ -216,7 +221,11 @@ export async function updateCake(
       title,
       description: description || "",
       images: updateData.images,
-      averageRating: cakeDoc.data().averageRating || 0,
+      createdAt: cake.createdAt,
+      ratingSummary: {
+        count: cake.ratingSummary.count || 0,
+        average: cake.ratingSummary.average || 0
+      }
     };
   } catch (error) {
     console.error("Error updating cake:", error);
@@ -235,14 +244,17 @@ export async function getCakes(): Promise<Cake[]> {
     const cakeSnapshot = await getDocs(cakesQuery);
 
     return cakeSnapshot.docs.map((doc) => {
-      const data = doc.data();
+      const data: Cake = doc.data() as Cake;
       return {
         id: doc.id,
         ...data,
-        createdAt: data.createdAt?.toDate() || new Date(),
+        createdAt: data.createdAt,
         ratings: data.ratings || [],
-        averageRating: data.averageRating || 0,
-      } as Cake;
+        ratingSummary: {
+          count: data.ratingSummary.count || 0,
+          average: data.ratingSummary.average || 0
+        }
+      };
     });
   } catch (error) {
     console.error("Error fetching cakes:", error);
@@ -255,20 +267,23 @@ export async function getCakesByRating(): Promise<Cake[]> {
   try {
     const cakesQuery = query(
       collection(firestore, "cakes"),
-      orderBy("averageRating", "desc"),
+      orderBy("ratingSummary.average", "desc"),
     );
 
     const cakeSnapshot = await getDocs(cakesQuery);
 
     return cakeSnapshot.docs.map((doc) => {
-      const data = doc.data();
+      const data: Cake = doc.data() as Cake;
       return {
         id: doc.id,
         ...data,
-        createdAt: data.createdAt?.toDate() || new Date(),
+        createdAt: data.createdAt,
         ratings: data.ratings || [],
-        averageRating: data.averageRating || 0,
-      } as Cake;
+        ratingSummary: {
+          count: data.ratingSummary.count || 0,
+          average: data.ratingSummary.average || 0
+        }
+      };
     });
   } catch (error) {
     console.error("Error fetching cakes by rating:", error);
@@ -281,7 +296,7 @@ export async function rateCake(
   cakeId: string,
   rating: number,
   currentUser: User,
-): Promise<number> {
+): Promise<RatingSummary> {
   try {
     const cakeRef = doc(firestore, "cakes", cakeId);
     const cakeDoc = await getDoc(cakeRef);
@@ -305,36 +320,37 @@ export async function rateCake(
       newRatings[userRatingIndex] = {
         userId: currentUser.id,
         rating,
-        timestamp: Timestamp.now(),
-        userName: currentUser.displayName,
-        userEmoji: currentUser.emojiAvatar,
+        timestamp: Timestamp.now()
       };
     } else {
       // Add new rating
       newRatings.push({
         userId: currentUser.id,
         rating,
-        timestamp: Timestamp.now(),
-        userName: currentUser.displayName,
-        userEmoji: currentUser.emojiAvatar,
+        timestamp: Timestamp.now()
       });
     }
 
     // Calculate the new average rating
-    const sum = newRatings.reduce(
+    const ratingSum = newRatings.reduce(
       (total: number, r: CakeRating) => total + r.rating,
       0,
     );
-    const averageRating = sum / newRatings.length;
+    const ratingCount = newRatings.length;
+    const averageRating = ratingSum / ratingCount;
+    const ratingSummary: RatingSummary = {
+      count: ratingCount,
+      average: averageRating
+    };
 
     // Update the cake document
     await updateDoc(cakeRef, {
       ratings: newRatings,
-      averageRating
+      ratingSummary
     });
     
-    // Return the new average rating for immediate UI updates
-    return averageRating;
+    // Return the new ratingSummary for immediate UI updates
+    return ratingSummary;
   } catch (error) {
     console.error("Error rating cake:", error);
     throw new Error("Failed to rate cake. Please try again.");
