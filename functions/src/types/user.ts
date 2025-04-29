@@ -1,5 +1,10 @@
+
 import { Timestamp } from 'firebase-admin/firestore';
 import { CakePreview } from './cake';
+
+export interface UserPreferences {
+  theme: 'light' | 'dark' | 'system';
+}
 
 export interface User {
   id: string;
@@ -10,6 +15,7 @@ export interface User {
   createdAt: Timestamp;
   createdCakes: CakePreview[];
   languagePreference: string;
+  preferences: UserPreferences;
 }
 
 export type EntityCreator = {

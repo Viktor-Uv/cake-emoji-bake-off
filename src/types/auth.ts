@@ -1,3 +1,4 @@
+
 import {User} from "@/types/user.ts";
 
 export interface AuthContextType {
@@ -11,5 +12,6 @@ export interface AuthContextType {
   updateDisplayName: (newName: string) => Promise<boolean>;
   deleteAccount: () => Promise<void>;
   updateLanguagePreference: (language: string) => Promise<boolean>;
+  updateThemePreference: (theme: 'light' | 'dark' | 'system') => Promise<boolean>;
   error: string | null;
 }

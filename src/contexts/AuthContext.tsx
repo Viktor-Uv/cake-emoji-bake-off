@@ -22,7 +22,7 @@ import {
 } from "firebase/firestore";
 import { auth, firestore, googleProvider } from "@/lib/firebase";
 import { AuthContextType } from "@/types/auth";
-import { User } from "@/types/user";
+import { User, UserPreferences } from "@/types/user";
 import { toast } from "@/components/ui/sonner";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { EMOJI_OPTIONS } from "@/constants/emoji-constants";
@@ -60,38 +60,30 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           photoURL: photoURL || null,
           createdAt,
           createdCakes: [],
-          languagePreference: currentLanguage
+          languagePreference: currentLanguage,
+          preferences: {
+            theme: 'system'
+          }
         };
 
         await setDoc(userRef, userData);
 
         console.log("User document created successfully!");
-        return {
-          id: firebaseUser.uid,
-          email,
-          displayName: displayName,
-          emojiAvatar: randomEmoji,
-          photoURL: photoURL || null,
-          createdAt,
-          createdCakes: [],
-          languagePreference: currentLanguage
-        };
+        return userData;
       } catch (error) {
         console.error("Error creating user document:", error);
         toast.error("Failed to create user profile. Please try again.");
         return null;
       }
     } else {
-      const userData: User = userSnap.data() as User;
+      const userData = userSnap.data() as User;
       return {
+        ...userData,
         id: firebaseUser.uid,
         email: firebaseUser.email || userData.email,
         displayName: firebaseUser.displayName || userData.displayName,
-        emojiAvatar: userData.emojiAvatar,
         photoURL: firebaseUser.photoURL || userData.photoURL,
-        createdAt: userData.createdAt,
-        createdCakes: userData.createdCakes || [],
-        languagePreference: userData.languagePreference || i18n.language.split("-")[0]
+        preferences: userData.preferences || { theme: 'system' }
       };
     }
   };
@@ -146,7 +138,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         photoURL: null,
         createdAt: Timestamp.now(),
         createdCakes: [],
-        languagePreference: i18n.language.split("-")[0]
+        languagePreference: i18n.language.split("-")[0],
+        preferences: {
+          theme: 'system'
+        }
       };
       await setDoc(userRef, userData);
 
@@ -296,6 +291,30 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
+  const updateThemePreference = async (theme: 'light' | 'dark' | 'system') => {
+    if (!user) return false;
+
+    try {
+      const userRef = doc(firestore, "users", user.id);
+      const preferences = user.preferences || { theme: 'system' };
+      
+      await updateDoc(userRef, { 
+        preferences: { ...preferences, theme } 
+      });
+
+      setUser({
+        ...user,
+        preferences: { ...preferences, theme }
+      });
+
+      return true;
+    } catch (err) {
+      console.error("Error updating theme preference:", err);
+      toast.error("Failed to update theme preference. Please try again.");
+      return false;
+    }
+  };
+
   const value = {
     user,
     loading,
@@ -307,6 +326,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     updateDisplayName,
     deleteAccount,
     updateLanguagePreference,
+    updateThemePreference,
     error
   };
 

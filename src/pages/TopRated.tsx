@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
@@ -9,6 +8,7 @@ import CakeCard from "@/components/CakeCard";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
 import LanguageSelector from "@/components/common/LanguageSelector";
+import ThemeSelector from "@/components/common/ThemeSelector";
 
 const TopRated: React.FC = () => {
   const { user, loading } = useAuth();
@@ -58,7 +58,7 @@ const TopRated: React.FC = () => {
         <div className="flex flex-col items-center justify-center py-12 text-center">
           <div className="text-6xl mb-6">🏆</div>
           <h1 className="text-2xl font-bold mb-4">{t("topRated.title")}</h1>
-          <p className="mb-8 text-gray-600">
+          <p className="mb-8 text-gray-600 dark:text-gray-300">
             {t("topRated.join")}
           </p>
 
@@ -79,8 +79,9 @@ const TopRated: React.FC = () => {
             </Button>
           </div>
 
-          <div className="mt-8 w-full">
+          <div className="mt-8 space-y-4 w-full">
             <LanguageSelector />
+            <ThemeSelector />
           </div>
         </div>
       </div>

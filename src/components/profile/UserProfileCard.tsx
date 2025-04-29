@@ -7,6 +7,7 @@ import EmojiPicker from "@/components/EmojiPicker";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import LanguageSelector from "@/components/common/LanguageSelector";
+import ThemeSelector from "@/components/common/ThemeSelector";
 import { useAuth } from "@/contexts/AuthContext";
 import { format } from "date-fns";
 import { 
@@ -47,7 +48,7 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-6">
+    <div className="bg-card text-card-foreground rounded-lg shadow-md p-6">
       <div className="flex flex-col items-center mb-6">
         <div className="flex items-center gap-2">
           {isEditing ? (
@@ -76,9 +77,9 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
             </>
           )}
         </div>
-        <p className="text-gray-600 text-sm">{user.email}</p>
+        <p className="text-gray-600 dark:text-gray-400 text-sm">{user.email}</p>
         {user.createdAt && (
-          <p className="text-gray-500 text-xs mt-1">
+          <p className="text-gray-500 dark:text-gray-400 text-xs mt-1">
             {t("profile.memberSince")}{' '} {format(user.createdAt.toDate(), "MMM d, yyyy")}
           </p>
         )}
@@ -88,7 +89,7 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
             value={user.emojiAvatar}
             onChange={onAvatarChange}
           />
-          <span className="text-xs text-gray-500">
+          <span className="text-xs text-gray-500 dark:text-gray-400">
               {t("profile.changeAvatar")}
             </span>
         </div>
@@ -96,6 +97,7 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
 
       <div className="space-y-4">
         <LanguageSelector />
+        <ThemeSelector />
       </div>
 
       <div className="mt-6 space-y-2">

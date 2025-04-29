@@ -10,7 +10,7 @@ const Layout: React.FC = () => {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <header className="bg-cake-pink bg-opacity-90 shadow-md py-4 px-4 fixed w-full z-10 top-0 easter-gradient">
+      <header className="bg-cake-pink dark:bg-purple-900 bg-opacity-90 dark:bg-opacity-90 shadow-md py-4 px-4 fixed w-full z-10 top-0 easter-gradient">
         <div className="container mx-auto flex items-center justify-center relative">
           <h1 className="text-2xl font-bold text-white flex items-center gap-2">
             <span className="text-3xl animate-wiggle inline-block">

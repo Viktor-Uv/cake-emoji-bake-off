@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { collection, query, getDocs, orderBy, limit, Timestamp } from "firebase/firestore";
 import { firestore } from "@/lib/firebase";
@@ -9,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTranslation } from "react-i18next";
 import LanguageSelector from "@/components/common/LanguageSelector";
+import ThemeSelector from "@/components/common/ThemeSelector";
 
 // Helper function to add days to date
 const addDays = (date: Date, days: number): Date => {
@@ -84,7 +84,7 @@ const Index: React.FC = () => {
         <div className="flex flex-col items-center justify-center py-12 text-center">
           <div className="text-6xl mb-6">🍰</div>
           <h1 className="text-2xl font-bold mb-4">{t("feed.title")}</h1>
-          <p className="mb-8 text-gray-600">
+          <p className="mb-8 text-gray-600 dark:text-gray-300">
             {t("feed.join")}
           </p>
 
@@ -105,8 +105,9 @@ const Index: React.FC = () => {
             </Button>
           </div>
 
-          <div className="mt-8 w-full">
+          <div className="mt-8 space-y-4 w-full">
             <LanguageSelector />
+            <ThemeSelector />
           </div>
         </div>
       </div>
