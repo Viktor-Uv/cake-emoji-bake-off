@@ -2,7 +2,7 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Sun, Moon, CircleHalf } from "lucide-react";
+import { Sun, Moon, LaptopIcon } from "lucide-react";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -35,7 +35,7 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({ className = "" }) => {
           <div className="flex items-center gap-2">
             {theme === 'light' && <Sun className="h-4 w-4" />}
             {theme === 'dark' && <Moon className="h-4 w-4" />}
-            {theme === 'system' && <CircleHalf className="h-4 w-4" />}
+            {theme === 'system' && <LaptopIcon className="h-4 w-4" />}
             <SelectValue />
           </div>
         </SelectTrigger>
@@ -54,7 +54,7 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({ className = "" }) => {
           </SelectItem>
           <SelectItem value="system">
             <div className="flex items-center gap-2">
-              <CircleHalf className="h-4 w-4" />
+              <LaptopIcon className="h-4 w-4" />
               <span>{t("theme.system")}</span>
             </div>
           </SelectItem>
